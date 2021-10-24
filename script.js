@@ -940,7 +940,7 @@ var dw_template = {
         jQuery('#dw__toc-right a').each(function($){
             innerHTML = (this).innerHTML.split(" ");
             numbering = innerHTML.shift();
-            if (jQuery.isNumeric(numbering.charAt(0))) {
+            if (jQuery.isNumeric(numbering.charAt(0)) && numbering.includes('.')) {
                 (this).innerHTML = '<b>'+numbering+'</b> '+innerHTML.join(" ");
             }
         });
