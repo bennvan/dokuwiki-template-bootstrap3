@@ -8,8 +8,14 @@
  */
 
 global $TPL;
+global $ID;
+global $INFO;
 
-if (($ACT == 'show' || defined('DOKU_MEDIADETAIL')) && $TPL->getConf('showPageIcons')):
+// check control macro to render page icons
+$meta = $INFO['meta']['internal'];
+$nopageicons = (isset($meta['nopageicons']) ? $meta['nopageicons'] : false);
+
+if (($ACT == 'show' || defined('DOKU_MEDIADETAIL')) && ($TPL->getConf('showPageIcons') && !$nopageicons)):
 
 ?>
 <!-- page-icons -->

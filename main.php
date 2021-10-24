@@ -68,7 +68,7 @@ header('X-UA-Compatible: IE=edge,chrome=1');
 
             <?php require_once('tpl/breadcrumbs.php'); ?>
 
-            <p class="text-right">
+            <p class="text-right" style="height:1.2rem;">
                 <?php
 
                     if ($TPL->getConf('tagsOnTop') && $tag = $TPL->getPlugin('tag')) {
@@ -116,6 +116,8 @@ header('X-UA-Compatible: IE=edge,chrome=1');
                         ob_start();
                         tpl_content(false);
 
+
+
                         $content         = ob_get_clean();
                         $toc             = $TPL->getTOC(true);
                         $content_classes = array();
@@ -124,19 +126,32 @@ header('X-UA-Compatible: IE=edge,chrome=1');
 
                         echo '<div class="dw-content-page '. implode(' ', $content_classes) .'">';
 
-                        if ($toc) echo $toc;
+                        if ($TPL->getConf('tocLayout') != 'rightsidebar') {
+                            if ($toc) echo $toc;
+                        } elseif ($toc) {
+                            echo '<div class="text-center d-print-none"><button class="btn btn-sm btn-primary p-0 small hidden-sm hidden-md hidden-lg"';
+                            echo ' data-toggle="collapse" data-target=".navbar-collapse" type="button">';
+                            echo '⇧ Table of Contents in NavBar ⇧';
+                            echo '</button></div>';
+                        };
 
                         echo '<!-- content -->';
                         echo '<div class="dw-content">';
                         echo $content;
                         echo '</div>';
                         echo '<!-- /content -->';
-                        echo '</div>';
+                        echo '</div>';                       
 
                         tpl_flush();
 
                         if (! $TPL->getConf('tagsOnTop') && $tag = $TPL->getPlugin('tag')) {
-                            echo implode('', array_map('trim', explode(',', $tag->td($ID))));
+                            $tags = array_map('trim', explode(',', $tag->td($ID)));
+                            if (!empty($tags[0])) {
+                                echo '<div class="dw-content-tags">';
+                                echo '<b>Tags: </b>';
+                                echo implode('', $tags);
+                                echo '</div>';
+                            }
                         }
 
                         // Page-Footer hook
@@ -153,7 +168,10 @@ header('X-UA-Compatible: IE=edge,chrome=1');
                 <div class="small text-right">
 
                     <?php if ($TPL->getConf('showPageInfo')): ?>
-                    <span class="docInfo">
+                    <span class="contributors text-left">
+                        <?php $TPL->getContribInfo() /* contributors list */ ?>
+                    </span>
+                    <span class="docInfo">          
                         <?php $TPL->getPageInfo() /* 'Last modified' etc */ ?>
                     </span>
                     <?php endif ?>
@@ -172,24 +190,29 @@ header('X-UA-Compatible: IE=edge,chrome=1');
 
             </article>
 
+            <?php if ($TPL->getConf('tocLayout') == 'rightsidebar'): ?>
+            
+                <?php if ($toc): ?>
+                <aside id="dokuwiki__rightsidetoc" class="dw__sidebar col-sm-2 col-md-2 col-lg-2 pl-0 pr-lg-5 pr-sm-0 hidden-print">
+                    <div class="dw-sidebar-content">
+                        <div class="dw-sidebar-title hidden-lg hidden-md hidden-sm">
+                        </div>
+                            <div class="dw-sidebar-body small">
+
+                                <?php echo $toc; ?>
+
+                            </div>
+                    </div>
+                </aside>
+                <?php endif; ?>
+
+            <?php endif; ?>
+
             <?php $TPL->includeSidebar('right'); // Right Sidebar ?>
 
         </div>
 
     </main>
-
-    <footer id="dw__footer" class="dw-container py-5 dokuwiki container<?php echo ($TPL->getConf('fluidContainer')) ? '-fluid' : '' ?>">
-        <?php
-            // Footer hook
-            tpl_includeFile('footer.html');
-
-            // Footer DokuWiki page
-            require_once('tpl/footer.php');
-
-            // Cookie-Law banner
-            require_once('tpl/cookielaw.php');
-        ?>
-    </footer>
 
     <a href="#dokuwiki__top" class="back-to-top hidden-print btn btn-default" title="<?php echo $lang['skip_to_content'] ?>" accesskey="t">
         <?php echo iconify('mdi:chevron-up'); ?>
@@ -208,6 +231,19 @@ header('X-UA-Compatible: IE=edge,chrome=1');
     ?>
 
 </div>
+
+<footer id="dw__footer" class="dw-container pt-5 dokuwiki container<?php echo ($TPL->getConf('fluidContainer')) ? '-fluid' : '' ?>">
+        <?php
+            // Footer hook
+            tpl_includeFile('footer.html');
+
+            // Footer DokuWiki page
+            require_once('tpl/footer.php');
+
+            // Cookie-Law banner
+            require_once('tpl/cookielaw.php');
+        ?>
+</footer>
 
 </body>
 </html>

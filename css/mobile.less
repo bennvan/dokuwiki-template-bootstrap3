@@ -5,6 +5,11 @@
  * Author   Giuseppe Di Terlizzi <giuseppe.diterlizzi@gmail.com>
  * License  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
+@media (max-width: 767px) {
+  .row > aside.dw__sidebar {
+    padding: 0 !important;
+  }
+}
 
 @media screen and (max-width: 767px) {
 
@@ -44,6 +49,12 @@
       }
     }
 
+    #dw__search.navbar-form {
+      display: block;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+
     #insitu__fn {
       max-width: initial !important;
       position: fixed !important;
@@ -70,4 +81,79 @@
 
   }
 
+}
+
+/*mobile support fixes*/
+@media (max-width:767px) {
+    article#dokuwiki__content {
+      padding: 0 !important;
+  };
+    
+}
+
+/*Fixes for mobile nav link colours with ammelab style*/
+body {
+  &.ammelab {
+    @media (max-width:768px) {
+      nav aside .nav li.level1 a,
+      nav #dw__user_menu .small, {
+      color: #c3c3c3;
+      }
+
+      #dw__navbar .dropdown-menu {
+        background: #1d2124;
+      }
+
+      nav aside .nav li.level2 a {
+      color: #252525;
+      }
+
+      nav aside .nav li.level1 a:hover {
+      color: #2780e3;
+      }
+
+      nav aside .nav li.level1.active a:hover {
+      color: white;
+      }
+
+      nav aside .nav li.level1.open a {
+      color: #313131;
+      }
+
+      nav aside .nav li.level2 a:hover,
+      nav #dw__user_menu strong {
+      color: white;
+      }
+    }
+  }
+}
+
+// Sidebar media query adjustments to reduce layout shifts
+@media (max-width:768px) {
+  main #dokuwiki__rightsidetoc {
+    display: none;
+  }
+  aside.dw__sidebar > .dw-sidebar-content:not(.panel) {
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    background-color: #fff;
+    border-color: #ddd;
+    .dw-sidebar-title {
+      text-align: center;
+      padding: 10px 15px;
+      border-bottom: 1px solid transparent;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+      color: #333;
+      background-color: #e6e6e6;
+      border-color: #ddd;
+      cursor: pointer;
+    }
+    .dw-sidebar-body {
+      display: none;
+    }
+  }
 }

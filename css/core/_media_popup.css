@@ -166,6 +166,15 @@ html.popup {
     vertical-align: text-bottom;
 }
 
+.ui-dialog-titlebar-close:before{
+  display: inline-block;
+  content: "\00d7"; /* This will render the 'X' */
+  color: #fff;
+  position: relative;
+  top: -4px;
+  overflow: hidden;
+}
+
 /* info how to insert media, if JS disabled */
 #media__content div.example {
     color: @ini_text_neu;

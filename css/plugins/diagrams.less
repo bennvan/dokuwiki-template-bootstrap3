@@ -1,0 +1,72 @@
+/*
+ * DokuWiki Bootstrap3 Template: DokuWiki Plugins
+ *
+ * Home     http://dokuwiki.org/template:bootstrap3
+ * Author   Ben van Magill <ben.vanmagill16@gmail.com>
+ * License  GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
+
+.diagrams-btn-bs-default {
+  color: #fff;
+  background-color: #9e9891;
+  border-color: #9e9891;
+  &:hover {
+    background-color: #867f76;
+    border-color: #807971;
+  }
+}
+
+.diagrams-btn-bs-primary {
+  color: #fff;
+  background-color:#2780e3;
+  border-color:#2780e3;
+  &:hover {
+    background-color:#1967be;
+    border-color:#1967be; 
+  }
+}
+
+.diagrams-btn-bs-xs {
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+.diagrams-btn-bs {
+  display: inline-block;
+  margin-left: 0;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid transparent;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  border-radius: 4px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+div#mediamanager__page {
+  .diagrams-btn {
+      .diagrams-btn-bs;
+      .diagrams-btn-bs-primary;
+      float: none;
+    }
+}
+
+div.dw-content {
+  .diagrams-btn {
+    .diagrams-btn-bs;
+    .diagrams-btn-bs-default;
+    .diagrams-btn-bs-xs;
+    float: right;
+  }
+}

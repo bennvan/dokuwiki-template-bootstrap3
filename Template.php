@@ -57,6 +57,7 @@ class Template
                 'tocLayout'                  => $this->getConf('tocLayout'),
                 'useAnchorJS'                => (int) $this->getConf('useAnchorJS'),
                 'useAlternativeToolbarIcons' => (int) $this->getConf('useAlternativeToolbarIcons'),
+                'lazyloadImages'             => $this->getConf('lazyloadImages')
             ],
         ];
 
@@ -206,11 +207,18 @@ class Template
 
                 // Preview and Show buttons
                 if ($item['_action'] == 'preview' || $item['_action'] == 'show') {
+                    $event->data->_content[$key]['class'] = ' btn btn-primary';
                     $event->data->_content[$key]['value'] = iconify('mdi:file-document-outline') . ' ' . $event->data->_content[$key]['value'];
+                }
+
+                // Changes button (requres changes plugin)
+                if ($item['_action'] == 'changes') {
+                    $event->data->_content[$key]['value'] = iconify('mdi:file-compare') . ' ' . $event->data->_content[$key]['value'];
                 }
 
                 // Cancel button
                 if ($item['_action'] == 'cancel') {
+                    $event->data->_content[$key]['class'] = ' btn btn-danger';
                     $event->data->_content[$key]['value'] = iconify('mdi:arrow-left') . ' ' . $event->data->_content[$key]['value'];
                 }
             }
@@ -304,8 +312,8 @@ class Template
 
             // TODO implement in css.php dispatcher
 
-            $styles[] = "body { margin-top: {$navbar_padding}px; }";
-            $styles[] = ' #dw__toc.affix { top: ' . ($navbar_padding - 10) . 'px; position: fixed !important; }';
+            $styles[] = "body { margin-top: {$navbar_padding}px; height: calc(100% - {$navbar_padding}px); }";
+            $styles[] = ' #dw__toc.affix, #dw__toc-right.affix { top: ' . ($navbar_padding - 10) . 'px;}';
 
             if ($this->getConf('tocCollapseSubSections')) {
                 $styles[] = ' #dw__toc .nav .nav .nav { display: none; }';
@@ -343,6 +351,7 @@ class Template
         $this->plugins['userhomepage'] = plugin_load('helper', 'userhomepage');
         $this->plugins['translation']  = plugin_load('helper', 'translation');
         $this->plugins['pagelist']     = plugin_load('helper', 'pagelist');
+        $this->plugins['publish']      = plugin_load('helper', 'publish');
     }
 
     public function getPlugin($plugin)
@@ -484,6 +493,11 @@ class Template
             case 'showEditBtn':
             case 'showAddNewPage':
 
+                if ($value == 'editperm') {
+                    $perm = auth_quickaclcheck($ID);
+                    return !($perm < AUTH_EDIT);
+                }
+
                 return $value !== 'never' && ($value == 'always' || !empty($_SERVER['REMOTE_USER']));
 
             case 'showAdminMenu':
@@ -501,7 +515,7 @@ class Template
 
             case 'showSidebar':
 
-                if ($ACT !== 'show') {
+                if (in_array($ACT, explode(' ', tpl_getConf('sidebarHideModes')))) {
                     return false;
                 }
 
@@ -513,7 +527,7 @@ class Template
 
             case 'showRightSidebar':
 
-                if ($ACT !== 'show') {
+                if (in_array($ACT, explode(' ', tpl_getConf('sidebarHideModes')))) {
                     return false;
                 }
 
@@ -592,7 +606,7 @@ class Template
         $bootswatch_themes = $this->getConfMetadata('bootswatchTheme');
         return $bootswatch_themes['_choices'];
     }
-
+  
     /**
      * Get a Gravatar, Libravatar, Office365/EWS URL or local ":user" DokuWiki namespace
      *
@@ -624,6 +638,37 @@ class Template
             $logo_size = [];
             $logo      = tpl_getMediaFile(["$user_url.png", "$user_url.jpg", 'images/avatar.png'], false, $logo_size);
 
+            return $logo;
+        }
+
+        if ($avatar_provider == 'localinitials') {
+            // search the users namespace for an avatar photo
+            $user_url  = ":user:$username:public:avatar";
+            $logo_size = [];
+            $logo      = tpl_getMediaFile(["$user_url.png", "$user_url.jpg"], false, $logo_size, false);
+
+            // If no logo, lets get the user name and make one
+            if (!$logo) {
+                global $auth;
+                $user_data = $auth->getUserData($username);
+                $names = explode(" ", $user_data['name']);
+                $inits = "";
+                foreach($names as $name){
+                    $inits .= substr($name, 0, 1) . '+';
+                }
+                
+                // build avatar-ui link
+                $dl_url = "https://ui-avatars.com/api/?name=$inits&background=random&bold=true&size=128";
+                $mediadir = DOKU_INC . "data/media";
+                $fullpath = $mediadir.str_replace(':', '/', $user_url).'.png';
+
+                // Create any missing namespaces
+                io_createNamespace($user_url, 'media');
+                // Download the new avatar, and save it to the user namespace;
+                io_download($dl_url,$fullpath);
+                // Try and retrieve new photo or use a fallback image.
+                $logo = tpl_getMediaFile(["$user_url.png", 'images/avatar.png'], false, $logo_size);
+            }
             return $logo;
         }
 
@@ -663,6 +708,21 @@ class Template
         }
 
         return false;
+    }
+
+    /**
+    * Get's the authors of an article from the metadata and add them to $this->authors
+    */
+    public function fetchAuthorsFromMetadata(){
+        global $INFO;
+        $authors = array();
+        $creator = $INFO['meta']['user'];
+        $creatorfullname = $INFO['meta']['creator'];
+        $authors[$creator] = $creatorfullname;
+
+        // Authors from metadata
+        if(isset($INFO) && array_key_exists('contributor',$INFO['meta']))   $authors =  array_merge($INFO['meta']['contributor'],$authors);
+        return $authors;
     }
 
     /**
@@ -732,6 +792,140 @@ class Template
     }
 
     /**
+     * Outputs the html to use for a modal. 
+     * Data is between "" in html so ensure single quotes are used within
+     *
+     * @author  Ben van Magill <ben.vanmagill16@gmail.com>
+     *
+     * @return  true
+     */
+    public function getContribModalItem($username, $avatar, $name, $email) {
+        global $ID;
+
+        echo "<div class='d-flex flex-row align-items-center justify-content-center'>";
+        echo    "<span>";
+        echo        "<img alt='$username' src='$avatar' class='img-circle' width='70' height='70'>";
+        echo    "</span>";
+        echo   "<span class='mb-2 ml-3 d-flex flex-column'>";
+        echo        "<div class='my-1'><em>$username</em></div>";
+        echo        "<div class='my-1'><strong>$name</strong></div>";
+        echo        "<div class='small'>";
+        echo            "<a href='mailto:$email?subject=AMME Labs Wiki page $ID'><i class='fa fa-envelope'></i>&nbsp;$email</a>";
+        echo        "</div>";
+        echo    "</span>";
+        echo "</div>";
+
+        return true;
+    }
+
+    /**
+     * Returns the data attribute for use in a popover. 
+     * Data is between "" in html so ensure single quotes are used within
+     *
+     * @author  Ben van Magill <ben.vanmagill16@gmail.com>
+     *
+     * @return  html string
+     */
+    public function getContribPopover($username, $avatar, $name, $email) {
+        global $ID;
+
+        $out .= "<div class='container-fluid'>";
+        $out .=    "<p class='text-center'>";
+        $out .=        "<img alt='$username' src='$avatar' class='img-circle' width='96' height='96'>";
+        $out .=    "</p>";
+        $out .=    "<div class='mb-2'>";
+        $out .=        "<div class='mb-2'>";
+        $out .=            "<strong>$name</strong>";
+        $out .=        "</div>";
+        $out .=        "<div class='small'>";
+        $out .=            "<a href='mailto:$email?subject=AMME Labs Wiki page $ID'><i class='fa fa-envelope'></i>&nbsp;$email</a>";
+        $out .=        "</div>";
+        $out .=    "</div>";
+        $out .= "</div>";
+
+        return $out;
+    }
+
+    /**
+     * Prints the html for the contributors portion of a wiki page
+     *
+     * @author  Ben van Magill <ben.vanmagill16@gmail.com>
+     *
+     * @return  true
+     */
+    public function getContribInfo() {
+        global $auth;
+        global $INFO;
+        global $ID;
+
+        // check control macro to render page info
+        $meta = $INFO['meta']['internal']; 
+        $nopageinfo = (isset($meta['nopageinfo']) ? $meta['nopageinfo'] : false);
+
+        if ($nopageinfo) return false;
+        
+        // return if we are not allowed to view the page
+        if (!auth_quickaclcheck($ID) || !$INFO['exists']) {
+            return false;
+        }
+
+        $authors = $this->fetchAuthorsFromMetadata();
+        $count = count($authors);
+
+        echo '<div class="contributors-heading">Contributors:</div>';
+        echo '<div class="contributors-list">';
+        $maxnum = 8;
+        $idx = 1;
+        foreach ($authors as $user => $fullname) {
+            if ($idx > $maxnum) break;
+            $user_data = $auth->getUserData($user);
+            $email = $user_data['mail'];
+            if (!$email) continue;
+            $avatar = $this->getAvatar($user, $email);
+
+            echo '<a tabindex="0" role="button" data-toggle="popover" data-trigger="focus" data-placement="top" title="<b>'.$user.'</b>" data-content="'.$this->getContribPopover($user,$avatar,$fullname,$email).'" class="rounded-circle contrib-overlap-avatar" ';
+            echo 'style="background: url('.$avatar.') 0 0 no-repeat;background-size: cover;">';
+            echo '</a>'; 
+            $idx++;   
+        }
+
+        // Show the modal if above maxnum;
+        if ($count > $maxnum) {
+            echo '<div class="d-flex flex-column align-items-center ml-3">';
+            echo '<b>+'.($count-$maxnum).' more</b>';
+            echo '<a role="button" data-toggle="modal" data-target="#contributors_modal" class="font-weight-bold">Show All</a></div>';
+            // modal
+            echo '<div class="modal fade" id="contributors_modal" tabindex="-1" role="dialog" aria-labelledby="contributors_modal" aria-hidden="true">';
+            echo '<div class="modal-dialog" role="document">';
+            echo '<div class="modal-content">';
+            echo '<div class="modal-header">';
+            echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close">';
+            echo '<span aria-hidden="true">&times;</span>';
+            echo '</button>';
+            echo '<h4 class="modal-title">'.$count.' Contributors to <b>'.p_get_first_heading($ID).'</b></h4>';
+            echo '</div>';
+            echo '<div class="modal-body">';
+            // modal body list
+            echo '<ul class="list-group">';
+            foreach ($authors as $user => $fullname) {
+                $user_data = $auth->getUserData($user);
+                $email = $user_data['mail'];
+                if (!$email) continue;
+                $avatar = $this->getAvatar($user, $email);
+                echo '<li class="list-group-item">';
+                $this->getContribModalItem($user, $avatar, $fullname, $email);
+                echo '</li>';
+            }
+            echo '</ul></div></div></div></div>';
+
+        }
+        echo '</div>';
+        
+        // echo $out;
+        return true;
+    }
+
+    /**
      * Print some info about the current page
      *
      * @author  Andreas Gohr <andi@splitbrain.org>
@@ -747,8 +941,12 @@ class Template
         global $INFO;
         global $ID;
 
+        // check control macro to render page info
+        $meta = $INFO['meta']['internal']; 
+        $nopageinfo = (isset($meta['nopageinfo']) ? $meta['nopageinfo'] : false);
+
         // return if we are not allowed to view the page
-        if (!auth_quickaclcheck($ID)) {
+        if (!auth_quickaclcheck($ID) || $nopageinfo) {
             return false;
         }
 
@@ -1110,7 +1308,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         $count = count($parts);
 
         echo '<ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">';
-        echo '<li>' . rtrim($lang['youarehere'], ':') . '</li>';
+        // echo '<li>' . rtrim($lang['youarehere'], ':') . '</li>';
 
         // always print the startpage
         echo '<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">';
@@ -1596,6 +1794,113 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     }
 
     /**
+     * get the svg aspect ratio from a url
+     *
+     * @author  Ben van Magill <ben.vanmagill16@gmail.com>
+     *
+     * @param  string  $url
+     */
+    private function getIntrinsicSVGSize($url)
+    {
+        global $conf;
+        // analyse the image
+        $locmedia = DOKU_BASE.'_media/';
+        if (strpos($url, $locmedia) === 0) {
+            $src = substr($url, strlen($locmedia));
+            list($path, $params) = explode('?', $src, 2);
+            preg_match('/rev=([0-9]+)/', $params, $rev);
+            preg_match('/w=([0-9]+)/', $params, $w);
+            preg_match('/h=([0-9]+)/', $params, $h);
+            $rev = (isset($rev[1]) ? $rev[1] : '');
+            // Width and height were in params, just return them
+            if ($w[1]>0 && $h[1]>0) {
+                return array($w[1], $h[1]);
+            }
+            // split path of any other params 
+            $path = explode('&', $path, 2);
+            $xml = mediaFN($path[0], $rev, false);
+            if (!file_exists($xml)) return array(0,0);
+            $xmlget = simplexml_load_file($xml);
+            $xmlattributes = $xmlget->attributes();
+            $width = (string) $xmlattributes->width; 
+            $height = (string) $xmlattributes->height;
+
+            return array($width, $height);
+        } 
+
+        return array(0, 0);
+    }
+
+    /**
+     * get the image aspect ratio from a url
+     *
+     * @author  Ben van Magill <ben.vanmagill16@gmail.com>
+     *
+     * @param  string  $url
+     */
+    private function getIntrinsicImageSize($url)
+    {
+        global $conf;
+        // analyse the image
+        $locmedia = DOKU_BASE.'_media/';
+        $extmedia = DOKU_BASE.'lib/exe/fetch.php?';
+        $pluginmedia = DOKU_BASE .'lib/plugins/';
+        if (strpos($url, $locmedia) === 0) {
+            $src = substr($url, strlen($locmedia));
+            list($path, $params) = explode('?', $src, 2);
+            preg_match('/rev=([0-9]+)/', $params, $rev);
+            preg_match('/w=([0-9]+)/', $params, $w);
+            preg_match('/h=([0-9]+)/', $params, $h);
+            $rev = (isset($rev[1]) ? $rev[1] : '');
+            // Width and height were in params, just return them
+            if ($w[1]>0 && $h[1]>0) {
+                return array($w[1], $h[1]);
+            } 
+            $media = mediaFN($path, $rev, false);
+            if (!file_exists($media)) return array(0,0);
+        } 
+        elseif (strpos($url, $extmedia) === 0) {
+            preg_match('/(?:\?|&)media=(.*)/', $url, $path);
+            preg_match('/cache=([a-zA-Z]+)/', $url, $cache);
+            $path = urldecode($path[1]);
+            // Decide what caching to do
+            if ($cache[1] === 'nocache') {
+                $cache = 0;
+            } elseif ($cache[1] === 'recache') {
+                $cache = $conf['cachetime'];
+            } else {
+                $cache = -1;
+            }
+            // Get the extension of the file 
+            list($ext, $mime, $dl) = mimetype($path, false);
+            if($ext === false) {
+                $ext  = 'unknown';
+                $mime = 'application/octet-stream';
+                $dl   = true;
+            }
+            $media = media_get_from_URL($path, $ext, $cache);
+            if (!$media) {
+                // Fallback to original path (nocache)
+                $media = $path;
+            if (!file_exists($media)) return array(0,0);
+            }
+        }
+        elseif (strpos($url, $pluginmedia) === 0) {
+            // dont do anything, just pass the url
+            $media = $url;
+        }
+
+        if (empty($media)) {
+            // no media found to query
+            return array(0,0);
+        }
+
+        list($width, $height) = getimagesize($media);
+                    
+        return array($width, $height);
+    }
+
+    /**
      * Add Bootstrap classes in a DokuWiki content
      *
      * @author  Giuseppe Di Terlizzi <giuseppe.diterlizzi@gmail.com>
@@ -1769,6 +2074,21 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             }
         }
 
+        # Publish plugin alert
+        if ($this->getPlugin('publish')) {
+            foreach ($html->find('.approval') as $elm) {
+                    $apr_classes = $elm->class;
+                    if (strpos($apr_classes, 'approved_no') !== false){
+                        $elm->class = 'alert alert-warning';
+                        $elm->innertext = iconify('mdi:information') . ' ' . $elm->innertext;
+                    }
+                    elseif (strpos($apr_classes, 'approved_yes') !== false){
+                        $elm->class = 'alert alert-success';
+                        $elm->innertext = iconify('mdi:check-circle') . ' ' . $elm->innertext;
+                    }
+            }
+        }
+
         # Tables
 
         $table_classes = 'table';
@@ -1783,7 +2103,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             }
         }
 
-        foreach ($html->find('table.inline,table.import_failures') as $elm) {
+        foreach ($html->find('table.inline,table.import_failures,table.exttable, .apr_table') as $elm) {
             $elm->class .= " $table_classes";
         }
 
@@ -1799,10 +2119,52 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             }
         }
 
+        # Lazy Load Images
+        switch ($this->getConf('lazyloadImages')) {
+            case 'native':
+                foreach ($html->find('img.media, img.mediacenter, img.medialeft, img.mediaright, object.diagrams-svg') as $elm) {
+                    $elm->{'loading'} = "lazy";
+                    $tagwidth = intval($elm->width);
+                    $tagheight = intval($elm->height);
+                    $is_img = (($elm->tag === 'img') ? true : false);
+                    if (!$tagwidth || !$tagheight) {
+                        // analyse the image/svg
+                        $src = ($is_img ? $elm->src : $elm->data);
+                        $src = str_replace('amp;', '', $src);
+                        list($width, $height) = ($is_img ? $this->getIntrinsicImageSize($src) : $this->getIntrinsicSVGSize($src));
+                    }
+                    // ensure we have width and height;
+                    if ($width>0 && $height>0) {
+                        $ar = $height/$width;
+                        if ($tagwidth) {
+                            $elm->height = $tagwidth*$ar;
+                        } else {
+                            $elm->width = $width;
+                            $elm->height = $height;
+                        }
+
+                    } 
+                    // Wrap if its an image
+                    if ($is_img) $elm->outertext = '<span class="lazyImage">' . $elm->outertext . '</span>';
+                }
+                break;
+            
+            case 'jquery':
+                foreach ($html->find('img.media, img.mediacenter, img.medialeft, img.mediaright') as $elm) {
+                    $elm->{'data-src'} = $elm->src;
+                    $img_size = [];
+                    $elm->src = DOKU_BASE.'lib/tpl/bootstrap3/images/loading.gif';
+                    $elm->class .= " lazyload";
+                }
+            default:
+                break;
+        }
+
         $content = $html->save();
 
         $html->clear();
         unset($html);
+
 
         # ----- Actions -----
 
@@ -1925,7 +2287,8 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 
                     foreach ($cm_elm->find('p') as $elm) {
                         $save_button    = '<div class="pull-right">' . $elm->outertext . '</div>';
-                        $elm->outertext = '</div>' . $elm->outertext;
+                        //Seems extra div causing problems
+                        // $elm->outertext = '</div>' . $elm->outertext;
                     }
 
                     foreach ($cm_elm->find('fieldset') as $elm) {
@@ -2176,7 +2539,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 
         # Difference and Draft
 
-        if ($ACT == 'diff' || $ACT == 'draft') {
+        if ($ACT == 'diff' || $ACT == 'draft' || $ACT == 'changes') {
             # Import HTML string
             $html = new \simple_html_dom;
             $html->load($content, true, false);
@@ -2234,6 +2597,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 
         $svg_icon      = null;
         $iconify_icon  = null;
+        $title_id      = null;
         $iconify_attrs = ['class' => 'mr-2'];
 
         if (!$INFO['exists'] && $ACT == 'show') {
@@ -2267,36 +2631,71 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 
                 break;
 
+            case 'profile':
+                $title_id = 'update-your-account-profile';
+                break;
+
+            case 'login':
+                $iconify_icon = 'mdi:login';
+                $title_id     = 'login';
+                $svg_icon     = null;
+                break;
+
             case 'resendpwd':
                 $iconify_icon = 'mdi:lock-reset';
+                $title_id     = 'send-new-password';
                 break;
 
             case 'denied':
                 $iconify_icon           = 'mdi:block-helper';
                 $iconify_attrs['style'] = 'color:red';
+                $title_id               ='permission-denied';
                 break;
 
             case 'search':
                 $iconify_icon = 'mdi:search-web';
+                $title_id     = 'search';
                 break;
 
             case 'preview':
                 $iconify_icon = 'mdi:file-eye';
+                $title_id     = 'preview';
                 break;
 
             case 'diff':
                 $iconify_icon = 'mdi:file-compare';
+                $title_id     = 'differences';
+                break;
+
+            case 'changes':
+                $iconify_icon = 'mdi:file-compare';
+                $title_id     = 'differences';
+                break;
+
+            case 'recent':
+                $title_id = 'recent-changes';
                 break;
 
             case 'showtag':
                 $iconify_icon = 'mdi:tag-multiple';
+                $title_id     = 'tag';
                 break;
+
+            case 'edit':
+                $title_id = 'edit';
 
             case 'draft':
                 $iconify_icon = 'mdi:android-studio';
+                $title_id     = 'draft-file-found';
                 break;
 
         }
+
+        if ($title_id == null) {
+                $selec = 'h1';
+            } else {
+                $selec = '#'.$title_id;
+            }
 
         if ($svg_icon) {
             $svg_attrs = ['class' => 'iconify mr-2'];
@@ -2311,7 +2710,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $html = new \simple_html_dom;
             $html->load($content, true, false);
 
-            foreach ($html->find('h1') as $elm) {
+            foreach ($html->find($selec) as $elm) {
                 $elm->innertext = $svg . ' ' . $elm->innertext;
                 break;
             }
@@ -2327,7 +2726,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $html = new \simple_html_dom;
             $html->load($content, true, false);
 
-            foreach ($html->find('h1') as $elm) {
+            foreach ($html->find($selec) as $elm) {
                 $elm->innertext = iconify($iconify_icon, $iconify_attrs) . $elm->innertext;
                 break;
             }
@@ -2365,17 +2764,28 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     public function getContainerGrid()
     {
         global $ID;
+        global $ACT;
 
         $result = '';
 
-        $grids = [
-            'sm' => ['left' => 0, 'right' => 0],
-            'md' => ['left' => 0, 'right' => 0],
-        ];
+        $grids = array(
+            'sm' => array('left' => 0, 'right' => 0),
+            'md' => array('left' => 0, 'right' => 0),
+            'lg' => array('left' => 0, 'right' => 0),
+        );
 
         $show_right_sidebar = $this->getConf('showRightSidebar');
         $show_left_sidebar  = $this->getConf('showSidebar');
         $fluid_container    = $this->getConf('fluidContainer');
+
+        $toc_layout         = $this->getConf('tocLayout');
+
+        $toc = $this->getTOC(true);
+        $hastoc = false;
+
+        if ($toc) {
+            $hastoc = true;
+        }
 
         if ($this->getConf('showLandingPage') && (bool) preg_match($this->getConf('landingPages'), $ID)) {
             $show_left_sidebar = false;
@@ -2388,8 +2798,14 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             }
         }
 
-        if ($show_right_sidebar) {
+        if ($show_right_sidebar or ($toc_layout == 'rightsidebar' && $hastoc)) {
             foreach (explode(' ', $this->getConf('rightSidebarGrid')) as $grid) {
+                list($col, $media, $size) = explode('-', $grid);
+                $grids[$media]['right']   = (int) $size;
+            }
+            // In the case that no rightsidebar is present, use the empy right sidebar classes.
+        } elseif (!in_array($ACT, explode(' ', tpl_getConf('sidebarHideModes')))) {
+            foreach (explode(' ', $this->getConf('rightSidebarGridEmpty')) as $grid) {
                 list($col, $media, $size) = explode('-', $grid);
                 $grids[$media]['right']   = (int) $size;
             }
@@ -2522,7 +2938,9 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         $out = '';
         $out .= '<script>JSINFO.bootstrap3.toc = ' . json_encode($json_toc) . ';</script>' . DOKU_LF;
 
-        if ($this->getConf('tocLayout') !== 'navbar') {
+        $toc_layout = $this->getConf('tocLayout');
+
+        if ($toc_layout === 'default') {
             $out .= '<!-- TOC START -->' . DOKU_LF;
             $out .= '<div class="dw-toc hidden-print">' . DOKU_LF;
             $out .= '<nav id="dw__toc" role="navigation" class="toc-panel panel panel-default small">' . DOKU_LF;
@@ -2531,6 +2949,21 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $out .= ' <i class="caret"></i></h6>' . DOKU_LF;
             $out .= '<div class="panel-body  toc-body collapse ' . (!$this->getConf('tocCollapsed') ? 'in' : '') . '">' . DOKU_LF;
             $out .= $this->normalizeList(html_buildlist($toc, 'nav toc', 'html_list_toc', 'html_li_default', true)) . DOKU_LF;
+            $out .= '</div>' . DOKU_LF;
+            $out .= '</nav>' . DOKU_LF;
+            $out .= '</div>' . DOKU_LF;
+            $out .= '<!-- TOC END -->' . DOKU_LF;
+        } elseif ($toc_layout === 'rightsidebar') {
+            $out .= '<!-- TOC START -->' . DOKU_LF;
+            $out .= '<div class="dw-toc-right hidden-print">' . DOKU_LF;
+            $out .= '<nav id="dw__toc-right" role="navigation" class="toc-panel-right panel panel-default small">' . DOKU_LF;
+            $out .= '<h6 data-toggle="collapse" data-target="#dw__toc-right .panel-collapse-toc" title="' . $lang['toc'] . '" class="panel-heading toc-panel-heading toc-title">' . iconify('mdi:view-list') . ' ';
+            $out .= '<span>' . $lang['toc'] . '</span>';
+            $out .= '&nbsp;&nbsp;&nbsp;<i class="caret"></i></h6>' . DOKU_LF;
+            $out .= '<div class="panel-collapse-toc collapse '.(!$this->getConf('tocCollapsed') ? 'in' : '').'">'. DOKU_LF;
+            $out .= '<div class="panel-body  toc-body-right">' . DOKU_LF;
+            $out .= $this->normalizeList(html_buildlist($toc, 'nav toc', 'html_list_toc', 'html_li_default', true)) . DOKU_LF;
+            $out .= '</div>' . DOKU_LF;
             $out .= '</div>' . DOKU_LF;
             $out .= '</nav>' . DOKU_LF;
             $out .= '</div>' . DOKU_LF;

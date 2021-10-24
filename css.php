@@ -145,6 +145,10 @@ if ($theme_by_namespace && file_exists($themes_filename) && !$ID) {
 }
 
 switch ($bootstrap_theme) {
+    case 'ammelab':
+        $stylesheets[] = 'assets/bootstrap/ammelab/bootstrap.min.css?v=1.0.1';
+        break;
+        
     case 'optional':
         $stylesheets[] = 'assets/bootstrap/default/bootstrap.min.css';
         $stylesheets[] = 'assets/bootstrap/default/bootstrap-theme.min.css';

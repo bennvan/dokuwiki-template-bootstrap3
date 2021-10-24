@@ -1,7 +1,8 @@
-# Bootstrap3 template for DokuWiki
+# Bootstrap3 template for DokuWiki (AMMELAB)
 
 ## Author
 
+  * Ben van Magill ([bennvan](https://github.com/bennvan)) <ben.vanmagill16@gmail.com>
   * Giuseppe Di Terlizzi ([giterlizzi](https://github.com/giterlizzi)) <giuseppe.diterlizzi@gmail.com>
 
 

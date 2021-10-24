@@ -9,9 +9,22 @@
 
 global $conf;
 global $TPL;
+global $ACT;
+global $ID;
+global $INFO;
+
+$hidemodes = explode(' ', tpl_getConf('breadcrumbHideModes'));
+
+// check control macro to render breadcrumbs
+$meta = $INFO['meta']['internal'];
+$nobread = (isset($meta['nobread']) ? $meta['nobread'] : false);
 
 ?>
+
 <?php if ($conf['youarehere'] || $conf['breadcrumbs']): ?>
+
+
+<?php if (!in_array($ACT, $hidemodes) && !$nobread): ?>
 <!-- breadcrumbs -->
 <nav id="dw__breadcrumbs" class="small">
 
@@ -32,5 +45,8 @@ global $TPL;
     <hr/>
 
 </nav>
+
+<?php endif ?>
+
 <!-- /breadcrumbs -->
 <?php endif ?>

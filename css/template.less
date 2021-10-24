@@ -299,10 +299,16 @@ div#picker2 {
 
 }
 
+/* share buttons */
+div.dw-page-icons li.shareon > .dropdown-menu {
+  right: 0;
+  left: unset;
+} 
 
 /* Footnotes */
 #insitu__fn {
   max-width: 20em;
+  z-index:1000;
 }
 
 .footnotes {
@@ -355,7 +361,7 @@ div#picker2 {
 
   &.container-fluid {
     margin: 0;
-    margin-bottom: -50px;
+    // margin-bottom: -50px;
     padding: 0;
   }
 
@@ -535,7 +541,7 @@ div#picker2 {
   }
 
   .admin_tasks {
-    width: 50% !important;
+    // width: 50% !important;
     padding: 0 10px !important;
   }
 
@@ -702,6 +708,18 @@ ul.btn-group {
 
 }
 
+
+/*Fix for table whitespace wrapping*/
+.dokuwiki > .table-responsive>.table>tbody>tr>td,
+.dokuwiki > .table-responsive>.table>tbody>tr>th,
+.dokuwiki > .table-responsive>.table>tfoot>tr>td,
+.dokuwiki > .table-responsive>.table>tfoot>tr>th,
+.dokuwiki > .table-responsive>.table>thead>tr>td,
+.dokuwiki > .table-responsive>.table>thead>tr>th {
+    white-space: normal;
+}
+
+
 /* Custom DropDown menu with multiple columns */
 .dropdown-row {
 
@@ -788,11 +806,11 @@ body {
 .dw-table-width {
 
   article table.inline {
-    width: auto;
+    max-width: 100%;
   }
 
   .mode_admin table.inline {
-    width: 100%;
+    max-width: 100%;
   }
 
 }
@@ -835,6 +853,27 @@ svg.icon {
 #dw__pagetools .menuitem span {
   display: none;
 }
+
+#dokuwiki__content .panel[itemprop="articleBody"] {
+  margin-bottom: 0.5rem;
+}
+
+.dw-content-tags {
+  font-size: 90%;
+  padding-top: 0.5rem;
+  border-top: 1px solid #ddd;
+}
+
+/*video embed fixes*/
+video.media
+video.mediacenter,
+video.medialeft,
+video.mediaright {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+};
+
 
 /* Fixes for Bootswatch theme and DokuWiki actions */
 
@@ -898,4 +937,102 @@ body {
 
 .alert {
   overflow: hidden;
+}
+
+
+aside .bs-wrap-nav .nav li a.urlextern {
+    background-image: none !important;
+    padding-left: 10px !important;
+}
+label.control-label {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+div.dw-sidebar-body > div > div.panel-body > p {
+    margin: 0 !important;
+}
+div.dw-content > div.dw__toc {
+    aria-expanded: false !important;
+    display: none !important;
+}
+
+
+/*buttons*/
+.dt-buttons.btn-group {
+    padding-bottom: 1rem;
+}
+
+#dw__editform .btn {  
+ margin-bottom: 0.3rem;
+}
+
+body.mode_admin .btn {
+  margin-left: 0.3rem;
+}
+
+.search-form {
+  .btn, .form-control {
+    margin-bottom: 0.3rem;
+  }
+}
+/* Flex cover page*/
+
+// Body height set in template.php due to fixed header
+html {
+  height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+
+/* Additions for contributors */
+.contrib-overlap-avatar {
+  height: 40px;
+  width: 40px;
+  margin-right: -10px;
+  border: 2px solid #fff;
+  transition: 0.2s ease;
+  &:hover {
+    cursor: pointer;
+    margin-right: -5px;
+  }
+}
+
+.contributors-heading {
+  font-size: 13px
+}
+
+.contributors {
+  float: left;
+  margin-left: 5px
+}
+
+.contributors-list {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+// Lazyload images
+
+.lazyImage img {
+  max-width: 100%;
+  height:auto;
+  opacity:1;
+  transition:background 0.5s, opacity 0.5s, transform 0.5s;
+}
+
+.lazyImageWaiting img {
+  opacity:0;
+  transition:none;
+}
+
+.lazyImageError img, {
+  background: grey;
+  width: 100px;
+  height: 100px;
 }

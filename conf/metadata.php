@@ -8,7 +8,7 @@
 
 
 // Theme
-$meta['bootstrapTheme']      = array('multichoice', '_choices' => array('default', 'optional', 'custom', 'bootswatch'));
+$meta['bootstrapTheme']      = array('multichoice', '_choices' => array('ammelab', 'default', 'optional', 'custom', 'bootswatch'));
 $meta['bootswatchTheme']     = array('multichoice', '_choices' => array('cerulean', 'cosmo', 'cyborg', 'darkly', 'flatly', 'journal', 'lumen', 'paper', 'readable', 'sandstone', 'simplex', 'solar', 'slate', 'spacelab', 'superhero', 'united', 'yeti'));
 $meta['customTheme']         = array('string');
 $meta['showThemeSwitcher']   = array('onoff');
@@ -20,6 +20,8 @@ $meta['sidebarPosition']      = array('multichoice', '_choices' => array('left',
 $meta['rightSidebar']         = array('string');
 $meta['leftSidebarGrid']      = array('string');
 $meta['rightSidebarGrid']     = array('string');
+$meta['rightSidebarGridEmpty']= array('string');
+$meta['sidebarHideModes']     = array('string');
 $meta['sidebarOnNavbar']      = array('onoff');
 $meta['sidebarShowPageTitle'] = array('onoff');
 
@@ -27,19 +29,19 @@ $meta['sidebarShowPageTitle'] = array('onoff');
 $meta['inverseNavbar']          = array('onoff');
 $meta['fixedTopNavbar']         = array('onoff');
 $meta['showTranslation']        = array('onoff');
-$meta['showTools']              = array('multichoice', '_choices' => array('never', 'logged', 'always'));
+$meta['showTools']              = array('multichoice', '_choices' => array('never', 'logged', 'editperm', 'always'));
 $meta['showHomePageLink']       = array('onoff');
 $meta['homePageURL']            = array('string', '_caution' => 'warning');
 $meta['showUserHomeLink']       = array('onoff');
 $meta['hideLoginLink']          = array('onoff');
-$meta['showEditBtn']            = array('multichoice', '_choices' => array('never', 'logged', 'always'));
+$meta['showEditBtn']            = array('multichoice', '_choices' => array('never', 'logged', 'editperm', 'always'));
 $meta['individualTools']        = array('onoff');
 $meta['showIndividualTool']     = array('multicheckbox', '_choices' => array('user', 'site', 'page'));
-$meta['showSearchForm']         = array('multichoice', '_choices' => array('never', 'logged', 'always'));
+$meta['showSearchForm']         = array('multichoice', '_choices' => array('never', 'logged', 'editperm', 'always'));
 $meta['showAdminMenu']          = array('onoff');
 $meta['showNavbar']             = array('multichoice', '_choices' => array('logged', 'always'));
 $meta['navbarLabels']           = array('multicheckbox', '_choices' => array('login', 'register', 'admin', 'tools', 'user', 'site', 'page', 'themes', 'expand', 'profile'));
-$meta['showAddNewPage']         = array('multichoice', '_choices' => array('never', 'logged', 'always'));
+$meta['showAddNewPage']         = array('multichoice', '_choices' => array('never', 'logged', 'editperm', 'always'));
 $meta['notifyExtensionsUpdate'] = array('onoff');
 
 // Semantic
@@ -53,7 +55,7 @@ $meta['tableFullWidth']         = array('onoff');
 $meta['tableStyle']             = array('multicheckbox', '_choices' => array('striped', 'bordered', 'hover', 'condensed', 'responsive'));
 $meta['showLandingPage']        = array('onoff');
 $meta['landingPages']           = array('regex');
-$meta['showPageTools']          = array('multichoice', '_choices' => array('never', 'logged', 'always'));
+$meta['showPageTools']          = array('multichoice', '_choices' => array('never', 'logged', 'editperm', 'always'));
 $meta['showPageId']             = array('onoff');
 $meta['showBadges']             = array('onoff');
 $meta['showLoginOnFooter']      = array('onoff');
@@ -64,14 +66,14 @@ $meta['tocAffix']               = array('onoff');
 $meta['tocCollapseSubSections'] = array('onoff');
 $meta['tocCollapseOnScroll']    = array('onoff');
 $meta['tocCollapsed']           = array('onoff');
-$meta['tocLayout']              = array('multichoice', '_choices' => array('default', 'navbar'));
+$meta['tocLayout']              = array('multichoice', '_choices' => array('default', 'navbar', 'rightsidebar'));
 
 // Discussion
 $meta['showDiscussion']      = array('onoff');
 $meta['discussionPage']      = array('string');
 
 // Avatar
-$meta['useAvatar']           = array('multichoice', '_choices' => array('off', 'gravatar', 'libravatar', 'office365', 'activedirectory', 'local'));
+$meta['useAvatar']           = array('multichoice', '_choices' => array('off', 'gravatar', 'libravatar', 'office365', 'activedirectory', 'local', 'localinitials'));
 $meta['gravatarURL']         = array('string');
 $meta['libravatarURL']       = array('string');
 $meta['office365URL']        = array('string');
@@ -109,3 +111,7 @@ $meta['tagsOnTop']                  = array('onoff');
 $meta['useAnchorJS']                = array('onoff');
 $meta['collapsibleSections']        = array('onoff');
 $meta['domParserMaxPageSize']       = array('numeric', '_min' => 0);
+$meta['breadcrumbHideModes']        = array('string');
+
+// Media
+$meta['lazyloadImages']             = array('multichoice', '_choices' => array('native', 'jquery', 'none'));
