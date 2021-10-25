@@ -920,7 +920,7 @@ var dw_template = {
 
         jQuery('body').scrollspy({
             target: scrollspy_target,
-            offset: ((parseInt(jQuery('body').css('marginTop')) || 0) + 10),
+            offset: ((parseInt(jQuery('body').css('marginTop')) || 0) + 15),
         });
 
         dw_template.tocResizeRight();
