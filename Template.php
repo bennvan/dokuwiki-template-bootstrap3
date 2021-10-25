@@ -393,7 +393,6 @@ class Template
      */
     public function includePage($location, $return = false)
     {
-
         $content = '';
 
         if ($plugin = $this->getPlugin('tplinc')) {
@@ -415,6 +414,11 @@ class Template
         }
 
         echo $content;
+        $pageid = page_findnearest($location);
+        if (auth_quickaclcheck($pageid) >= AUTH_EDIT && $content !== ''){
+            echo '<a href="'.wl($pageid).'?do=edit" class="float-right btn btn-default btn-xs">Edit '.$location.'</a>';
+            echo '<span class="clearfix"></span>';
+        }
         return '';
     }
 
