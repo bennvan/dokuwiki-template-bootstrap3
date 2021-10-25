@@ -144,7 +144,7 @@ header('X-UA-Compatible: IE=edge,chrome=1');
 
                         tpl_flush();
 
-                        if (! $TPL->getConf('tagsOnTop') && $tag = $TPL->getPlugin('tag')) {
+                        if (! $TPL->getConf('tagsOnTop') && $ACT == 'show' && ($tag = $TPL->getPlugin('tag'))) {
                             $tags = array_map('trim', explode(',', $tag->td($ID)));
                             if (!empty($tags[0])) {
                                 echo '<div class="dw-content-tags">';
@@ -167,7 +167,7 @@ header('X-UA-Compatible: IE=edge,chrome=1');
 
                 <div class="small text-right">
 
-                    <?php if ($TPL->getConf('showPageInfo')): ?>
+                    <?php if ($TPL->getConf('showPageInfo') && $ACT == 'show'): ?>
                     <span class="contributors text-left">
                         <?php $TPL->getContribInfo() /* contributors list */ ?>
                     </span>
