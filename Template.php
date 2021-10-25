@@ -416,7 +416,7 @@ class Template
         echo $content;
         $pageid = page_findnearest($location);
         if (auth_quickaclcheck($pageid) >= AUTH_EDIT && $content !== ''){
-            echo '<a href="'.wl($pageid).'?do=edit" class="float-right btn btn-default btn-xs">Edit '.$location.'</a>';
+            echo '<a href="'.wl($pageid).'?do=edit" class="float-right btn btn-default btn-xs mb-1">Edit '.$location.'</a>';
             echo '<span class="clearfix"></span>';
         }
         return '';
