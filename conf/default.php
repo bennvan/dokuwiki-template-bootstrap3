@@ -8,7 +8,7 @@
 
 $conf['bootstrapTheme']              = 'ammelab';
 $conf['bootswatchTheme']             = 'yeti';
-$conf['breadcrumbHideModes']         = 'notfound login admin';
+$conf['breadcrumbHideModes']         = 'notfound login admin denied';
 $conf['browserTitle']                = '@TITLE@ | @WIKI@';
 $conf['browserTitleCharSepNS']       = '-';
 $conf['browserTitleOrderNS']         = 'normal';
