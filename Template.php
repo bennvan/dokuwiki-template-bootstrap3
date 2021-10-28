@@ -352,6 +352,7 @@ class Template
         $this->plugins['translation']  = plugin_load('helper', 'translation');
         $this->plugins['pagelist']     = plugin_load('helper', 'pagelist');
         $this->plugins['publish']      = plugin_load('helper', 'publish');
+        $this->plugins['approve']      = plugin_load('helper', 'approve');
     }
 
     public function getPlugin($plugin)
@@ -383,6 +384,68 @@ class Template
         return $instance;
     }
 
+
+    /**
+     * If approve plugin exists, redirect to newest approved page for user that don't have EDIT permission.
+     *
+     * @param Doku_Event $event
+     * @return String (wiki content), bool (no page exists)
+     */
+    public function getLastApprovedPage($location, $useacl=true) {
+        // Find the nearest pageid
+        $pageid = page_findnearest($location, $useacl);
+        if(!$pageid) return false;
+
+        $rev = $this->getLastApprovedRev($pageid);
+
+        //approve plugin is active but no approvals exist yet  
+        if ($rev === null) return false;
+
+        global $TOC;
+        $oldtoc = $TOC;
+        $html   = p_wiki_xhtml($pageid, $rev, false);
+        $TOC    = $oldtoc;
+        return $html;
+    }
+
+    /**
+     * Using the approve plugin, get the last approved page
+     *
+     * @param Doku_Event $event
+     * @return String (revision), null (no revision present)
+     */
+    public function getLastApprovedRev($pageid) {
+        // If approve plugin active, get latest revision
+        $helper = $this->getPlugin('approve');
+        if (!$helper) return ''; 
+
+        // Try to get the approvals db
+        try {
+            /** @var \helper_plugin_approve_db $db_helper */
+            $db_helper = plugin_load('helper', 'approve_db');
+            $sqlite = $db_helper->getDB();
+        } catch (Exception $e) {
+            msg($e->getMessage(), -1);
+            return '';
+        }
+
+        //Always use latest revision if 
+        if (!$helper->use_approve_here($sqlite, $pageid, $approver)) return '';
+        if ($helper->client_can_see_drafts($pageid, $approver)) return '';
+
+        $last_approved_rev = $helper->find_last_approved($sqlite, $pageid);
+
+        //no page is approved
+        if (!$last_approved_rev) return null;
+
+        $last_change_date = @filemtime(wikiFN($pageid));
+        //current page is approved
+        if ($last_approved_rev == $last_change_date) return '';
+
+        //Return the latest revision
+        return $last_approved_rev;
+    }
+
     /**
      * Get the content to include from the tplinc plugin
      *
@@ -400,7 +463,7 @@ class Template
         }
 
         if ($content === '') {
-            $content = tpl_include_page($location, 0, 1, $this->getConf('useACL'));
+            $content = $this->getLastApprovedPage($location,$this->getConf('useACL'));
         }
 
         if ($content === '') {
@@ -414,6 +477,7 @@ class Template
         }
 
         echo $content;
+        // Display an edit button for the included pages
         $pageid = page_findnearest($location);
         if (auth_quickaclcheck($pageid) >= AUTH_EDIT && $content !== ''){
             echo '<a href="'.wl($pageid).'?do=edit" class="float-right btn btn-default btn-xs mb-1">Edit '.$location.'</a>';
@@ -2093,8 +2157,51 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             }
         }
 
-        # Tables
+        # Approve plugin alert
+        if ($this->getPlugin('approve')) {
+            foreach ($html->find('#plugin__approve') as $elm) {
 
+                foreach ($elm->find('a') as $atag) {
+                    $aclass = $atag->class;
+                    $plugclass = 'plugin__approve_banner_';
+                    if (strpos($aclass, $plugclass.'ready') !== false) {
+                        $atag->class = 'btn btn-primary btn-xs';
+                    }
+                    elseif (strpos($aclass, $plugclass.'approve') !== false) {
+                        $atag->class = 'btn btn-success btn-xs';
+                    }
+                    elseif (strpos($aclass, $plugclass.'newdraft') !== false) {
+                        $atag->class = 'btn btn-warning btn-xs';
+                    }
+                    elseif (strpos($aclass, $plugclass.'newapp') !== false) {
+                        $atag->class = 'btn btn-info btn-xs';
+                    }
+                }
+
+                $apr_classes = $elm->class;
+                if (strpos($apr_classes, 'plugin__approve_red') !== false){
+                    // $atags = 
+                    $elm->class = 'alert alert-warning';
+                    $elm->innertext = iconify('mdi:pencil-box') . ' ' . $elm->innertext;
+                }
+                elseif (strpos($apr_classes, 'plugin__approve_green') !== false){
+                    // $atags = $elm->find('a');
+                    $elm->class = 'alert alert-success';
+                    $elm->innertext = iconify('mdi:check-circle') . ' ' . $elm->innertext;
+                }
+                elseif (strpos($apr_classes, 'plugin__approve_ready') !== false){
+                    // $atags = $elm->find('a');
+                    $elm->class = 'alert alert-info';
+                    $elm->innertext = iconify('mdi:info-circle') . ' ' . $elm->innertext;
+                }
+            }
+            // approve tables
+            foreach ($html->find('.plugin__approve_table') as $elm) {
+                $elm->class .= " table table-responsive table-bordered";
+            }
+        }
+
+        # Tables
         $table_classes = 'table';
 
         foreach ($this->getConf('tableStyle') as $class) {
@@ -2107,7 +2214,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             }
         }
 
-        foreach ($html->find('table.inline,table.import_failures,table.exttable, .apr_table') as $elm) {
+        foreach ($html->find('table.inline,table.import_failures,table.exttable') as $elm) {
             $elm->class .= " $table_classes";
         }
 

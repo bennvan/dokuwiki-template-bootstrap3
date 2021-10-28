@@ -108,7 +108,7 @@ header('X-UA-Compatible: IE=edge,chrome=1');
                         tpl_includeFile('pageheader.html');
 
                         // Page-Header DokuWiki page
-                        if ($ACT == 'show') $TPL->includePage('pageheader');
+                        if ($ACT == 'show' && substr($ID, -strlen('pageheader')) !== 'pageheader') $TPL->includePage('pageheader');
 
                         tpl_flush(); /* flush the output buffer */
 
@@ -158,7 +158,7 @@ header('X-UA-Compatible: IE=edge,chrome=1');
                         tpl_includeFile('pagefooter.html');
 
                         // Page-Footer DokuWiki page
-                        if ($ACT == 'show') $TPL->includePage('pagefooter');
+                        if ($ACT == 'show' && substr($ID, -strlen('pagefooter')) !== 'pagefooter') $TPL->includePage('pagefooter');
 
                         ?>
 

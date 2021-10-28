@@ -31,7 +31,7 @@ if ($TPL->getConf('sidebarShowPageTitle')) {
                 tpl_includeFile("$sidebar_header.html");
                 if ($ACT == 'show') $TPL->includePage($sidebar_header);
                 
-                $TPL->normalizeSidebar(tpl_include_page($sidebar_page, 0, 1, $TPL->getConf('useACL'))); /* includes the nearest sidebar page */
+                $TPL->normalizeSidebar($TPL->includePage($sidebar_page, $TPL->getConf('useACL'))); /* includes the nearest sidebar page */
 
                 tpl_includeFile("$sidebar_footer.html");
                 if ($ACT == 'show') $TPL->includePage($sidebar_footer)
