@@ -1,0 +1,66 @@
+/*
+ * DokuWiki Bootstrap3 Template: DokuWiki Plugins
+ *
+ * Home     http://dokuwiki.org/template:bootstrap3
+ * Author   Ben van Magill <ben.vanmagill16@gmail.com>
+ * License  GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
+
+.approve-btn-bs-success {
+  color: #fff;
+  background-color:#3fb618;
+  border-color:#3fb618;
+  &:hover {
+    background-color:#2f8912;
+    border-color:#2f8912;
+  }
+}
+
+.approve-btn-bs {
+  display: inline-block;
+  margin-left: 0;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid transparent;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  border-radius: 4px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.plugin__approve_diff {
+  .approve-btn-bs;
+  .approve-btn-bs-success;
+  float: right;
+  &:hover {
+      text-decoration: none;
+      color: #fff;
+  }
+}
+
+#plugin__approve {
+  position: initial;
+  text-align: center;
+  margin-bottom: .5rem;
+}
+
+.plugin__approve_table td[colspan="4"] {
+  text-align: center;
+  background: #8d8d8d;
+  font-weight: bold;
+  font-size: 16px;
+  text-transform: capitalize;
+  a {
+    color: #fff;
+    pointer-events: none;
+  }
+}
