@@ -131,7 +131,7 @@ header('X-UA-Compatible: IE=edge,chrome=1');
                         } elseif ($toc) {
                             echo '<div class="text-center d-print-none"><button class="btn btn-sm btn-primary p-0 small hidden-sm hidden-md hidden-lg"';
                             echo ' data-toggle="collapse" data-target=".navbar-collapse" type="button">';
-                            echo '⇧ Table of Contents in NavBar ⇧';
+                            echo '⇧ Table of Contents in Navbar ⇧';
                             echo '</button></div>';
                         };
 
