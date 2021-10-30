@@ -951,9 +951,9 @@ class Template
             if (!$email) continue;
             $avatar = $this->getAvatar($user, $email);
 
-            echo '<a tabindex="0" role="button" data-toggle="popover" data-trigger="focus" data-placement="top" title="<b>'.$user.'</b>" data-content="'.$this->getContribPopover($user,$avatar,$fullname,$email).'" class="rounded-circle contrib-overlap-avatar" ';
-            echo 'style="background: url('.$avatar.') 0 0 no-repeat;background-size: cover;">';
-            echo '</a>'; 
+            echo '<a tabindex="0" role="button" data-toggle="popover" data-trigger="focus" data-placement="top" title="<b>'.$user.'</b>" data-content="'.$this->getContribPopover($user,$avatar,$fullname,$email).'" class="rounded-circle contrib-overlap-avatar" >';
+            // echo 'style="background: url('.$avatar.') 0 0 no-repeat;background-size: cover;">';
+            echo '<img alt="'.$user.'" src="'.$avatar.'" class="m-0 w-100 h-100 img-circle"></a>'; 
             $idx++;   
         }
 
