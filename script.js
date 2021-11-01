@@ -1141,6 +1141,7 @@ var dw_template = {
         /* DOKUWIKI:include js/plugins/wrap.js */
         /* DOKUWIKI:include js/plugins/watchcycle.js */
         /* DOKUWIKI:include js/plugins/datatables.js */
+        /* DOKUWIKI:include js/plugins/notfound.js */
     },
 };
 
