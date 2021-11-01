@@ -8,8 +8,13 @@
  */
 
 global $TPL;
+global $INFO;
 
-if ($TPL->getConf('showPageTools')): ?>
+// check control macro to render breadcrumbs
+$meta = $INFO['meta']['internal'];
+$nopagetools = (isset($meta['nopagetools']) ? $meta['nopagetools'] : false);
+
+if ($TPL->getConf('showPageTools') && !$nopagetools): ?>
 
 <!-- page-tools -->
 <nav id="dw__pagetools" class="hidden-print">
