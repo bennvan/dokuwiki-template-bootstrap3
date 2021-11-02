@@ -906,10 +906,19 @@ var dw_template = {
 
         // Set TOC Affix
         if (JSINFO.bootstrap3.config.tocAffix) {
-            $dw_panel_body = jQuery(".panel-default[itemprop=articleBody]");
+            // $dw_panel_body = jQuery(".panel-default[itemprop=articleBody]");
+            // $dw_panel_preview = jQuery('.mode_preview div.preview');
+            if (JSINFO.ACT === 'preview') {
+                $dw_panel_body = jQuery('.mode_preview div.preview');
+                $toctop = $dw_panel_body.position().top+65;
+            } else {
+                $dw_panel_body = jQuery(".panel-default[itemprop=articleBody]");
+                $toctop = jQuery("#dokuwiki__content").position().top;
+            }
+            // Assign affix values
             $dw_toc_right.affix({
                 offset: {
-                    top: (jQuery("#dokuwiki__content").position().top),
+                    top: ($toctop),
                     bottom: (jQuery(document).height() - $dw_panel_body.outerHeight() - $dw_panel_body.offset().top),
                 }
             });
@@ -947,6 +956,14 @@ var dw_template = {
 
         if ((jQuery(window).height() < $dw_toc_right.height())) {
             dw_template.tocResizeRight();
+        }
+
+        if (JSINFO.ACT === 'preview') {
+            $preview = jQuery('.mode_preview div.preview');
+            $preview.wrap('<div class="row"></div>');
+            $preview.addClass('col-sm-9 col-md-8 col-lg-8 mr-3');
+            jQuery('<div class="col-md-1 col-lg-1 col-sm-0"></div>').insertBefore($preview);
+            jQuery('#dokuwiki__rightsidetoc').insertAfter($preview);
         }
 
     },

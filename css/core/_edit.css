@@ -145,17 +145,18 @@ div.picker button.toolbutton {
     top: 0 !important;
 }
 
-.mode_preview div.preview {
-    margin-left: auto;
-    margin-right: auto;
-}
-
 /*Set preview width same size as it will be displayed with sidebars*/
-@media (min-width: 1200px) {
+@media (min-width: 992px) {
     .mode_preview div.preview{
         width: 66.66666667%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+@media (min-width: 768px) {
+    .mode_preview div.preview{
         border: 1px solid #eee;
         border-radius: 4px;
-        padding: 20px;
+        padding: 22.5px;
     }
 }
