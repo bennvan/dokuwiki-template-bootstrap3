@@ -910,7 +910,7 @@ var dw_template = {
             // $dw_panel_preview = jQuery('.mode_preview div.preview');
             if (JSINFO.ACT === 'preview') {
                 $dw_panel_body = jQuery('.mode_preview div.preview');
-                $toctop = $dw_panel_body.position().top+65;
+                $toctop = $dw_panel_body.position().top + 65;
             } else {
                 $dw_panel_body = jQuery(".panel-default[itemprop=articleBody]");
                 $toctop = jQuery("#dokuwiki__content").position().top;
@@ -919,7 +919,7 @@ var dw_template = {
             $dw_toc_right.affix({
                 offset: {
                     top: ($toctop),
-                    bottom: (jQuery(document).height() - $dw_panel_body.outerHeight() - $dw_panel_body.offset().top),
+                    bottom: (jQuery(document).height() - $dw_panel_body.outerHeight() - $dw_panel_body.offset().top - 65),
                 }
             });
         }
