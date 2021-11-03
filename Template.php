@@ -2116,6 +2116,47 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $elm->class .= ' form-inline';
         }
 
+        # Nav tabs and pills
+        foreach ($html->find('.bs-wrap-nav') as $nav_wrap) {
+            $nav_class = ['nav'];
+            if ($nav_wrap->{'data-nav-type'}) $nav_class[] = 'nav-'.$nav_wrap->{'data-nav-type'};
+            if ($nav_wrap->{'data-nav-justified'} === '1') $nav_class[] = 'nav-justified';
+            if ($nav_wrap->{'data-nav-stacked'} === '1') $nav_class[] = 'nav-stacked';
+            $nav = $nav_wrap->find('ul',0);
+            // Add nav classes
+            $nav->class = implode(' ', $nav_class);
+
+            // Find any icon links
+            foreach ($nav->find('li .dw-icons+a') as $elm) {
+                $icon = $elm->prev_sibling();
+                $elm->innertext = $icon->outertext.'&nbsp;'.$elm->innertext;
+                $icon->outertext = '';
+            };
+
+            // Unwrap each list item
+            foreach ($nav->find('div.li') as $elm) {
+                $elm->outertext = $elm->innertext;
+            }
+            foreach ($nav->find('li') as $elm) {
+                $elm->{'role'} = 'presentation';
+            }
+
+            // dropdown menus
+            $toggle  = '<a class="dropdown-toggle" data-toggle="dropdown" href="#"';
+            $toggle .= 'role="button" aria-haspopup="true" aria-expanded="false">';
+
+            foreach($nav->find('li ul') as $elm){
+                if (strpos($elm->class, 'dropdown-menu') !== false) continue;
+                $elm->class .= ' dropdown-menu';
+                $parent = $elm->parent();
+                $parent->class .= ' dropdown';
+                $dropdown = $elm->outertext;
+                $elm->outertext = '';
+                $parent->innertext = $toggle.$parent->innertext.'</a>'.DOKU_LF.$dropdown; 
+            }
+
+        }
+
         # Alerts
         foreach ($html->find('div.info, div.error, div.success, div.notify') as $elm) {
             switch ($elm->class) {

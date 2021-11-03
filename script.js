@@ -106,24 +106,6 @@ var dw_template = {
 
         }
 
-        // Hash change
-        if (JSINFO.bootstrap3.config.fixedTopNavbar) {
-
-            var scrollOnHashChange = function () {
-                scrollBy(0, - (parseInt(jQuery('body').css('marginTop')) || 0));
-            };
-
-            if (location.hash) {
-                setTimeout(function () {
-                    scrollOnHashChange();
-                }, 1);
-            }
-
-            jQuery(window).on('hashchange', function () {
-                scrollOnHashChange();
-            });
-        }
-
     },
 
     // Normalization & Basic Styling
@@ -184,9 +166,11 @@ var dw_template = {
             if (el) {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
+                    history.replaceState({}, '', this.href);
+                    // Only scroll if its not a tab
+                    if (this.dataset.toggle === 'tab') return;
                     y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
                     window.scrollTo({top: y, behavior: 'smooth'});
-                    history.replaceState({}, '', this.href);
                 });
             }
         });
