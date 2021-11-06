@@ -1981,6 +1981,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         global $ACT;
         global $INPUT;
         global $INFO;
+        global $ID;
 
         # FIX :-\ smile
         $content = str_replace(['alt=":-\"', "alt=':-\'"], 'alt=":-&#92;"', $content);
@@ -2122,6 +2123,18 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             if ($nav_wrap->{'data-nav-type'}) $nav_class[] = 'nav-'.$nav_wrap->{'data-nav-type'};
             if ($nav_wrap->{'data-nav-justified'} === '1') $nav_class[] = 'nav-justified';
             if ($nav_wrap->{'data-nav-stacked'} === '1') $nav_class[] = 'nav-stacked';
+            if ($nav_wrap->{'data-nav-collapse'} === '1') {
+                $nav_class[] = 'nav-collapse';
+                $atoggle = 'collapse';
+                $aclass = 'collapsed';
+                $ulclass = 'collapse';
+                $this_page = wl($ID);
+                $collapse = true;
+            } else {
+                $aclass = '';
+                $atoggle = 'dropdown';
+                $ulclass = 'dropdown-menu';
+            }
             $nav = $nav_wrap->find('ul',0);
             // Add nav classes
             $nav->class = implode(' ', $nav_class);
@@ -2142,12 +2155,16 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             }
 
             // dropdown menus
-            $toggle  = '<a class="dropdown-toggle" data-toggle="dropdown" href="#"';
+            $toggle  = '<a class="dropdown-toggle '.$aclass.'" data-toggle="'.$atoggle.'"';
             $toggle .= 'role="button" aria-haspopup="true" aria-expanded="false">';
 
             foreach($nav->find('li ul') as $elm){
-                if (strpos($elm->class, 'dropdown-menu') !== false) continue;
-                $elm->class .= ' dropdown-menu';
+                if (strpos($elm->class, $ulclass) !== false) continue;
+                if ($elm->find('a[href='.$this_page.']') && $collapse) {
+                    $elm->class .= ' '.$ulclass.' in';         
+                } else {
+                    $elm->class .= ' '.$ulclass;
+                }
                 $parent = $elm->parent();
                 $parent->class .= ' dropdown';
                 $dropdown = $elm->outertext;
