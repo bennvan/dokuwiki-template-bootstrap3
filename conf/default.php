@@ -8,7 +8,7 @@
 
 $conf['bootstrapTheme']              = 'ammelab';
 $conf['bootswatchTheme']             = 'yeti';
-$conf['breadcrumbHideModes']         = 'notfound login admin denied search';
+$conf['breadcrumbHideModes']         = 'notfound login admin denied search showtag';
 $conf['browserTitle']                = '@TITLE@ | @WIKI@';
 $conf['browserTitleCharSepNS']       = '-';
 $conf['browserTitleOrderNS']         = 'normal';
@@ -72,7 +72,7 @@ $conf['showWikiInfo']                = 0;
 $conf['sidebarOnNavbar']             = 0;
 $conf['sidebarPosition']             = 'left';
 $conf['sidebarShowPageTitle']        = 1;
-$conf['sidebarHideModes']            = 'edit preview changes revisions admin notfound media denied login index search';
+$conf['sidebarHideModes']            = 'edit preview changes revisions admin notfound media denied login index search showtag';
 $conf['socialShareProviders']        = 'facebook,microsoft-teams,whatsapp';
 $conf['tableFullWidth']              = 0;
 $conf['tableStyle']                  = 'striped,bordered,responsive';
