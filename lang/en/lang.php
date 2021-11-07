@@ -23,6 +23,8 @@ $lang['extensions_update']       = 'Extensions update';
 $lang['user_groups']             = 'Groups';
 $lang['preview_size']            = 'Size of this preview';
 $lang['other_resolutions']       = 'Other resolutions';
+$lang['privatenamespace']        = 'Private';
+$lang['publicnamespace']         = 'Public';
 
 // Configuration Manager Template Sections
 $lang['config_theme']            = 'Theme';

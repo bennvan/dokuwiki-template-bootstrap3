@@ -1286,7 +1286,17 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
      */
     public function getUserHomePageLink()
     {
-        return wl($this->getUserHomePageID());
+        return wl($this->getUserHomePageID().':');
+    }
+
+    /**
+     * Return the user public-page link
+     *
+     * @return  string
+     */
+    public function getUserPublicPageLink()
+    {
+        return wl($this->getUserHomePageID().':public:');
     }
 
     /**

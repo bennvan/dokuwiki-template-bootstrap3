@@ -102,24 +102,15 @@ if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
             <li class="divider"></li>
 
             <?php if ($TPL->getConf('showUserHomeLink')): ?>
-            <li class="dropdown-header">Home-Page</li>
+            <li class="dropdown-header">User Pages</li>
             <?php
-                if ($userhomepage = $TPL->getPlugin('userhomepage')):
-                    echo '<li><a rel="nofollow" href="' . wl($userhomepage->getPublicID()) . '" title="'. $userhomepage->getLang('publicpage') .'">' .
-                         iconify('mdi:home') . ' ' . $userhomepage->getLang('publicpage') .'</a></li>';
+                echo '<li><a rel="nofollow" href="' . $TPL->getUserPublicPageLink() . '" title="'. tpl_getLang('publicnamespace') .'">' .
+                     iconify('mdi:home') . ' ' . tpl_getLang('publicnamespace') .'</a></li>';
 
-                    echo '<li><a rel="nofollow" href="' . wl($userhomepage->getPrivateID()) . '" title="'. $userhomepage->getLang('privatenamespace') .'">' .
-                         iconify('mdi:home-account') . ' ' . $userhomepage->getLang('privatenamespace') .'</a></li>';
-                else:
+                echo '<li><a rel="nofollow" href="' . $TPL->getUserHomePageLink() . '" title="'. tpl_getLang('privatenamespace') .'">' .
+                     iconify('mdi:lock') . ' ' . tpl_getLang('privatenamespace') .'</a></li>';
             ?>
 
-            <li>
-                <a href="<?php echo $TPL->getUserHomePageLink() ?>" title="Home-Page" rel="nofollow">
-                    <?php echo iconify('mdi:home-account'); ?> Home-Page
-                </a>
-            </li>
-
-            <?php endif; ?>
             <li class="divider"></li>
             <?php endif; ?>
 
