@@ -23,8 +23,13 @@ $lang['extensions_update']       = 'Extensions update';
 $lang['user_groups']             = 'Groups';
 $lang['preview_size']            = 'Size of this preview';
 $lang['other_resolutions']       = 'Other resolutions';
+$lang['userpages']               = 'User Pages';
 $lang['privatenamespace']        = 'Private';
 $lang['publicnamespace']         = 'Public';
+$lang['sharednamespace']         = 'Shared';
+$lang['privatenamespace_desc']   = 'For you only';
+$lang['publicnamespace_desc']    = 'Anyone can read these pages';
+$lang['sharednamespace_desc']    = 'Only other logged-in users can read these pages';
 
 // Configuration Manager Template Sections
 $lang['config_theme']            = 'Theme';

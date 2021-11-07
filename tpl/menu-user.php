@@ -101,14 +101,19 @@ if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
 
             <li class="divider"></li>
 
-            <?php if ($TPL->getConf('showUserHomeLink')): ?>
-            <li class="dropdown-header">User Pages</li>
+            <?php if ($TPL->getConf('showUserHomeLink') && in_array('user', $INFO['userinfo']['grps'])): ?>
+            <li class="dropdown-header"><?php echo tpl_getLang('userpages') ?></li>
             <?php
-                echo '<li><a rel="nofollow" href="' . $TPL->getUserPublicPageLink() . '" title="'. tpl_getLang('publicnamespace') .'">' .
-                     iconify('mdi:home') . ' ' . tpl_getLang('publicnamespace') .'</a></li>';
 
-                echo '<li><a rel="nofollow" href="' . $TPL->getUserHomePageLink() . '" title="'. tpl_getLang('privatenamespace') .'">' .
+                echo '<li><a rel="nofollow" href="' . $TPL->getUserHomePageLink() . '" title="'. tpl_getLang('privatenamespace_desc') .'">' .
                      iconify('mdi:lock') . ' ' . tpl_getLang('privatenamespace') .'</a></li>';
+
+                echo '<li><a rel="nofollow" href="' . $TPL->getUserSharePageLink() . '" title="'. tpl_getLang('sharednamespace_desc') .'">' .
+                     iconify('mdi:account-network') . ' ' . tpl_getLang('sharednamespace') .'</a></li>';
+
+                echo '<li><a rel="nofollow" href="' . $TPL->getUserPublicPageLink() . '" title="'. tpl_getLang('publicnamespace_desc') .'">' .
+                     iconify('mdi:earth') . ' ' . tpl_getLang('publicnamespace') .'</a></li>';
+
             ?>
 
             <li class="divider"></li>

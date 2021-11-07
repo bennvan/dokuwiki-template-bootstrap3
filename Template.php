@@ -1300,6 +1300,16 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     }
 
     /**
+     * Return the user sahred-page link
+     *
+     * @return  string
+     */
+    public function getUserSharePageLink()
+    {
+        return wl($this->getUserHomePageID().':share:');
+    }
+
+    /**
      * Return the user home-page ID
      *
      * @author  Giuseppe Di Terlizzi <giuseppe.diterlizzi@gmail.com>
