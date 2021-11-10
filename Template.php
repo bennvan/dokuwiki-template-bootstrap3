@@ -271,7 +271,7 @@ class Template
         if ($event->name == 'SEARCH_RESULT_FULLPAGE') {
             $event->data['resultBody']['meta'] = str_replace(
                 ['<span class="lastmod">', '<span class="hits">'],
-                ['<span class="lastmod">' . iconify('mdi:calendar') . ' ', '<span class="hits"' . iconify('mdi:poll') . ' '],
+                ['<span class="lastmod">' . iconify('mdi:calendar') . ' ', '<span class="hits">' . iconify('mdi:poll') . ' '],
                 '<small>' . $event->data['resultBody']['meta'] . '</small>'
             );
         }
@@ -1725,7 +1725,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         global $ID;
         global $conf;
 
-        $navbar = $this->toBootstrapNav(tpl_include_page('navbar', 0, 1, $this->getConf('useACL')), 'navbar');
+        $navbar = $this->toBootstrapNav($this->getLastApprovedPage('navbar',$this->getConf('useACL')), 'navbar');
 
         $navbar = str_replace('urlextern', '', $navbar);
 
@@ -1804,7 +1804,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             return;
         }
 
-        $output   = $this->normalizeContent($this->toBootstrapNav(tpl_include_page($page, 0, 1, $this->getConf('useACL')), 'pills', true));
+        $output   = $this->normalizeContent($this->toBootstrapNav($this->getLastApprovedPage($page,$this->getConf('useACL')), 'pills', true));
         $dropdown = '<ul class="nav navbar-nav dw__dropdown_page">' .
         '<li class="dropdown dropdown-large">' .
         '<a href="#" class="dropdown-toggle" data-toggle="dropdown" title="">' .
