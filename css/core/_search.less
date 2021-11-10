@@ -116,9 +116,7 @@
         padding: 0;
 
         li {
-            float: left;
             width: 12em;
-            margin: 0 1.5em;
         }
     }
 }
@@ -128,6 +126,29 @@
 }
 
 /*____________ search results ____________*/
+.dokuwiki div.search_quickresult ul.search_quickhits {
+        max-width: 600px;
+
+        li {
+            font-size: larger;
+            word-break: break-word;
+            &:not(:first-of-type) {
+                padding-top: 15px;
+            }
+        }
+        @media(min-width: 768px){
+            padding-left: 50px;
+        }
+        a {
+            color: #1a0dab;
+        }
+
+        .quickhit-meta {
+        color: @ini_text_alt;
+        font-size: small;
+        display: block;
+        }
+    }
 
 .dokuwiki dl.search_results {
     margin-bottom: 1.2em;
@@ -139,9 +160,38 @@
         font-size: large;
     }
 
+    a {
+        color: #1a0dab;
+        word-break: break-word;
+    }
+
+    /* search result */
+    .search-ns-link {
+        color: @ini_text_alt;
+        font-size: small;
+        display: block;
+    }
+    .search_fullpage_result {
+        &:not(:first-of-type) {
+            @media(max-width: 768px) {
+                border-top: 1px solid @ini_background_alt;
+                padding-top: 20px;
+            }
+            padding-top: 10px;
+        }
+        @media(min-width: 768px){
+            padding-left: 50px;
+        }
+    }
+
+    .elastic-datemod {
+        color: #999;
+    }
+
     /* last modified line */
     dd.meta {
         margin: 0 0 .2em 0;
+        color: @ini_text_alt;
     }
 
     /* search snippet */

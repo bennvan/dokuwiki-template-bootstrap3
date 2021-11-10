@@ -2364,9 +2364,32 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $html = new \simple_html_dom;
             $html->load($content, true, false);
 
+            foreach ($html->find('.search_quickhits li a') as $elm) {
+                $ns = '<div class="quickhit-meta">@'.str_replace(':', ' › ',$elm->{'data-wiki-id'}).'</div>';
+                $prev = $elm->prev_sibling();
+                if ($prev->tag == 'span') {
+                    $prev->outertext = $ns.$prev->outertext;
+                } else {
+                    $elm->outertext = $ns.$elm->outertext; 
+                }    
+            }
+
             foreach ($html->find('fieldset.search-form button[type="submit"]') as $elm) {
                 $elm->class .= ' btn-primary';
                 $elm->innertext = iconify('mdi:magnify', ['class' => 'mr-2']) . $elm->innertext;
+            }
+
+            foreach ($html->find('h2') as $elm) {
+                $elm->outertext = '<h4>'.$elm->innertext.'</h4><hr></hr>';
+            }
+
+            foreach ($html->find('.search_fullpage_result a+a') as $elm) {
+                $elm->innertext = str_replace(':',' › ', $elm->innertext);
+                $elm->class = 'search-ns-link';
+                $elm->title = 'Search this namespace';
+                $link = $elm->prev_sibling();
+                $link->outertext = $elm->outertext.$link->outertext;
+                $elm->outertext = '';
             }
 
             $content = $html->save();
