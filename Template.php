@@ -10,6 +10,8 @@ namespace dokuwiki\template\bootstrap3;
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 
+use \dokuwiki\Extension\Event;
+
 class Template
 {
 
@@ -3087,7 +3089,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $toc_undefined = array_pop($toc);
         }
 
-        trigger_event('TPL_TOC_RENDER', $toc, null, false);
+        Event::createAndTrigger('TPL_TOC_RENDER', $toc, null, false);
 
         if ($ACT == 'admin' && $INPUT->str('page') == 'config') {
             $bootstrap3_sections = [
