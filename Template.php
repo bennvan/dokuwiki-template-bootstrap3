@@ -92,6 +92,20 @@ class Template
         $events_dispatcher = [
             'FORM_QUICKSEARCH_OUTPUT'       => 'searchHandler',
             'FORM_SEARCH_OUTPUT'            => 'searchHandler',
+            // ToDo: Handle new form events in cb.
+
+            'FORM_DRAFT_OUTPUT'             => 'draftFormHandler',
+            'FORM_EDIT_OUTPUT'              => 'editFormHandler',
+            'FORM_LOGIN_OUTPUT'             => 'accountFormHandler',
+            'FORM_PROFILEDELETE_OUTPUT'     => 'accountFormHandler',
+            'FORM_RECENT_OUTPUT'            => 'revisionsFormHandler',
+            'FORM_REGISTER_OUTPUT'          => 'accountFormHandler',
+            'FORM_RESENDPWD_OUTPUT'         => 'accountFormHandler',
+            'FORM_REVISIONS_OUTPUT'         => 'revisionsFormHandler',
+            'FORM_SUBSCRIBE_OUTPUT'         => 'accountFormHandler',
+            'FORM_UPDATEPROFILE_OUTPUT'     => 'accountFormHandler',
+
+            /*-------------- Deprecated form events ------------*/
             'HTML_DRAFTFORM_OUTPUT'         => 'draftFormHandler',
             'HTML_EDITFORM_OUTPUT'          => 'editFormHandler',
             'HTML_LOGINFORM_OUTPUT'         => 'accountFormHandler',
@@ -102,6 +116,8 @@ class Template
             'HTML_REVISIONSFORM_OUTPUT'     => 'revisionsFormHandler',
             'HTML_SUBSCRIBEFORM_OUTPUT'     => 'accountFormHandler',
             'HTML_UPDATEPROFILEFORM_OUTPUT' => 'accountFormHandler',
+            /*------------------------------------------*/
+
             'PLUGIN_TAG_LINK'               => 'tagPluginHandler',
             'PLUGIN_TPLINC_LOCATIONS_SET'   => 'tplIncPluginHandler',
             'SEARCH_QUERY_FULLPAGE'         => 'searchHandler',
@@ -120,47 +136,53 @@ class Template
 
     public function accountFormHandler(\Doku_Event $event)
     {
-        foreach ($event->data->_content as $key => $item) {
-            if (is_array($item) && isset($item['_elem'])) {
-                $title_icon   = 'account';
-                $button_class = 'btn btn-success';
-                $button_icon  = 'arrow-right';
+        // -------- Deprecated in Igor release ----------- //
+        if (!is_a($event->data, \dokuwiki\Form\Form::class)){  
+            foreach ($event->data->_content as $key => $item) {
+                if (is_array($item) && isset($item['_elem'])) {
+                    $title_icon   = 'account';
+                    $button_class = 'btn btn-success';
+                    $button_icon  = 'arrow-right';
 
-                switch ($event->name) {
-                    case 'HTML_LOGINFORM_OUTPUT':
-                        $title_icon  = 'account';
-                        $button_icon = 'lock';
-                        break;
-                    case 'HTML_UPDATEPROFILEFORM_OUTPUT':
-                        $title_icon = 'account-card-details-outline';
-                        break;
-                    case 'HTML_PROFILEDELETEFORM_OUTPUT':
-                        $title_icon   = 'account-remove';
-                        $button_class = 'btn btn-danger';
-                        break;
-                    case 'HTML_REGISTERFORM_OUTPUT':
-                        $title_icon = 'account-plus';
-                        break;
-                    case 'HTML_SUBSCRIBEFORM_OUTPUT':
-                        $title_icon = null;
-                        break;
-                    case 'HTML_RESENDPWDFORM_OUTPUT':
-                        $title_icon = 'lock-reset';
-                        break;
-                }
+                    switch ($event->name) {
+                        case 'HTML_LOGINFORM_OUTPUT':
+                            $title_icon  = 'account';
+                            $button_icon = 'lock';
+                            break;
+                        case 'HTML_UPDATEPROFILEFORM_OUTPUT':
+                            $title_icon = 'account-card-details-outline';
+                            break;
+                        case 'HTML_PROFILEDELETEFORM_OUTPUT':
+                            $title_icon   = 'account-remove';
+                            $button_class = 'btn btn-danger';
+                            break;
+                        case 'HTML_REGISTERFORM_OUTPUT':
+                            $title_icon = 'account-plus';
+                            break;
+                        case 'HTML_SUBSCRIBEFORM_OUTPUT':
+                            $title_icon = null;
+                            break;
+                        case 'HTML_RESENDPWDFORM_OUTPUT':
+                            $title_icon = 'lock-reset';
+                            break;
+                    }
 
-                // Legend
-                if ($item['_elem'] == 'openfieldset') {
-                    $event->data->_content[$key]['_legend'] = (($title_icon) ? iconify("mdi:$title_icon") : '') . ' ' . $event->data->_content[$key]['_legend'];
-                }
+                    // Legend
+                    if ($item['_elem'] == 'openfieldset') {
+                        $event->data->_content[$key]['_legend'] = (($title_icon) ? iconify("mdi:$title_icon") : '') . ' ' . $event->data->_content[$key]['_legend'];
+                    }
 
-                // Save button
-                if (isset($item['type']) && $item['type'] == 'submit') {
-                    $event->data->_content[$key]['class'] = " $button_class";
-                    $event->data->_content[$key]['value'] = (($button_icon) ? iconify("mdi:$button_icon") : '') . ' ' . $event->data->_content[$key]['value'];
+                    // Save button
+                    if (isset($item['type']) && $item['type'] == 'submit') {
+                        $event->data->_content[$key]['class'] = " $button_class";
+                        $event->data->_content[$key]['value'] = (($button_icon) ? iconify("mdi:$button_icon") : '') . ' ' . $event->data->_content[$key]['value'];
+                    }
                 }
             }
         }
+        // ------------------------------------------ //
+
+        // ToDo: Alternate method for \dokuwiki\Form\Form (Igor)
     }
 
     /**
@@ -172,22 +194,28 @@ class Template
      **/
     public function draftFormHandler(\Doku_Event $event)
     {
-        foreach ($event->data->_content as $key => $item) {
-            if (is_array($item) && isset($item['_elem'])) {
-                if ($item['_action'] == 'draftdel') {
-                    $event->data->_content[$key]['class'] = ' btn btn-danger';
-                    $event->data->_content[$key]['value'] = iconify('mdi:close') . ' ' . $event->data->_content[$key]['value'];
-                }
+        // -------- Deprecated in Igor release ----------- //
+        if (!is_a($event->data, \dokuwiki\Form\Form::class)){   
+            foreach ($event->data->_content as $key => $item) {
+                if (is_array($item) && isset($item['_elem'])) {
+                    if ($item['_action'] == 'draftdel') {
+                        $event->data->_content[$key]['class'] = ' btn btn-danger';
+                        $event->data->_content[$key]['value'] = iconify('mdi:close') . ' ' . $event->data->_content[$key]['value'];
+                    }
 
-                if ($item['_action'] == 'recover') {
-                    $event->data->_content[$key]['value'] = iconify('mdi:refresh') . ' ' . $event->data->_content[$key]['value'];
-                }
+                    if ($item['_action'] == 'recover') {
+                        $event->data->_content[$key]['value'] = iconify('mdi:refresh') . ' ' . $event->data->_content[$key]['value'];
+                    }
 
-                if ($item['_action'] == 'show') {
-                    $event->data->_content[$key]['value'] = iconify('mdi:arrow-left') . ' ' . $event->data->_content[$key]['value'];
+                    if ($item['_action'] == 'show') {
+                        $event->data->_content[$key]['value'] = iconify('mdi:arrow-left') . ' ' . $event->data->_content[$key]['value'];
+                    }
                 }
             }
         }
+        // ------------------------------------------ //
+
+        // ToDo: Alternate method for \dokuwiki\Form\Form (Igor)
     }
 
     /**
@@ -199,32 +227,38 @@ class Template
      **/
     public function editFormHandler(\Doku_Event $event)
     {
-        foreach ($event->data->_content as $key => $item) {
-            if (is_array($item) && isset($item['_elem'])) {
-                // Save button
-                if ($item['_action'] == 'save') {
-                    $event->data->_content[$key]['class'] = ' btn btn-success';
-                    $event->data->_content[$key]['value'] = iconify('mdi:content-save') . ' ' . $event->data->_content[$key]['value'];
-                }
+        // -------- Deprecated in Igor release ----------- //
+        if (!is_a($event->data, \dokuwiki\Form\Form::class)){
+            foreach ($event->data->_content as $key => $item) {
+                if (is_array($item) && isset($item['_elem'])) {
+                    // Save button
+                    if ($item['_action'] == 'save') {
+                        $event->data->_content[$key]['class'] = ' btn btn-success';
+                        $event->data->_content[$key]['value'] = iconify('mdi:content-save') . ' ' . $event->data->_content[$key]['value'];
+                    }
 
-                // Preview and Show buttons
-                if ($item['_action'] == 'preview' || $item['_action'] == 'show') {
-                    $event->data->_content[$key]['class'] = ' btn btn-primary';
-                    $event->data->_content[$key]['value'] = iconify('mdi:file-document-outline') . ' ' . $event->data->_content[$key]['value'];
-                }
+                    // Preview and Show buttons
+                    if ($item['_action'] == 'preview' || $item['_action'] == 'show') {
+                        $event->data->_content[$key]['class'] = ' btn btn-primary';
+                        $event->data->_content[$key]['value'] = iconify('mdi:file-document-outline') . ' ' . $event->data->_content[$key]['value'];
+                    }
 
-                // Changes button (requres changes plugin)
-                if ($item['_action'] == 'changes') {
-                    $event->data->_content[$key]['value'] = iconify('mdi:file-compare') . ' ' . $event->data->_content[$key]['value'];
-                }
+                    // Changes button (requres changes plugin)
+                    if ($item['_action'] == 'changes') {
+                        $event->data->_content[$key]['value'] = iconify('mdi:file-compare') . ' ' . $event->data->_content[$key]['value'];
+                    }
 
-                // Cancel button
-                if ($item['_action'] == 'cancel') {
-                    $event->data->_content[$key]['class'] = ' btn btn-danger';
-                    $event->data->_content[$key]['value'] = iconify('mdi:arrow-left') . ' ' . $event->data->_content[$key]['value'];
+                    // Cancel button
+                    if ($item['_action'] == 'cancel') {
+                        $event->data->_content[$key]['class'] = ' btn btn-danger';
+                        $event->data->_content[$key]['value'] = iconify('mdi:arrow-left') . ' ' . $event->data->_content[$key]['value'];
+                    }
                 }
             }
         }
+        // ------------------------------------------ //
+
+        // ToDo: Alternate method for \dokuwiki\Form\Form (Igor)
     }
 
     /**
@@ -236,25 +270,31 @@ class Template
      **/
     public function revisionsFormHandler(\Doku_Event $event)
     {
-        foreach ($event->data->_content as $key => $item) {
-            // Revision form
-            if (is_array($item) && isset($item['_elem'])) {
-                if ($item['_elem'] == 'opentag' && $item['_tag'] == 'span' && strstr($item['class'], 'sizechange')) {
-                    if (strstr($item['class'], 'positive')) {
-                        $event->data->_content[$key]['class'] .= ' label label-success';
+        // ----- Deprecated in Igor release -------- //
+        if (!is_a($event->data, \dokuwiki\Form\Form::class)){
+            foreach ($event->data->_content as $key => $item) {
+                // Revision form
+                if (is_array($item) && isset($item['_elem'])) {
+                    if ($item['_elem'] == 'opentag' && $item['_tag'] == 'span' && strstr($item['class'], 'sizechange')) {
+                        if (strstr($item['class'], 'positive')) {
+                            $event->data->_content[$key]['class'] .= ' label label-success';
+                        }
+
+                        if (strstr($item['class'], 'negative')) {
+                            $event->data->_content[$key]['class'] .= ' label label-danger';
+                        }
                     }
 
-                    if (strstr($item['class'], 'negative')) {
-                        $event->data->_content[$key]['class'] .= ' label label-danger';
+                    // Recent form
+                    if ($item['_elem'] == 'opentag' && $item['_tag'] == 'li' && strstr($item['class'], 'minor')) {
+                        $event->data->_content[$key]['class'] .= ' text-muted';
                     }
-                }
-
-                // Recent form
-                if ($item['_elem'] == 'opentag' && $item['_tag'] == 'li' && strstr($item['class'], 'minor')) {
-                    $event->data->_content[$key]['class'] .= ' text-muted';
                 }
             }
         }
+        // --------------------------------------- //
+
+        // ToDo: Alternate method using \dokuwiki\Form\Form (Igor)
     }
 
     public function contentHandler(\Doku_Event $event)
