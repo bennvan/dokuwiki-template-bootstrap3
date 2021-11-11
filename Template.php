@@ -2382,7 +2382,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             }
 
             foreach ($html->find('h2') as $elm) {
-                $elm->outertext = '<h4>'.$elm->innertext.'</h4><hr></hr>';
+                $elm->class .= ' search-heading';
             }
 
             foreach ($html->find('.search_fullpage_result a+a') as $elm) {
