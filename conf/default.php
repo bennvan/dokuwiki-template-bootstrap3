@@ -88,4 +88,4 @@ $conf['useAlternativeToolbarIcons']  = 0;
 $conf['useAnchorJS']                 = 1;
 $conf['useAvatar']                   = 'localinitials';
 $conf['useGoogleAnalytics']          = 0;
-$conf['notifyExtensionsUpdate']      = 1;
+$conf['notifyExtensionsUpdate']      = 0;
