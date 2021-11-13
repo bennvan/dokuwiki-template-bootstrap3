@@ -2213,10 +2213,23 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $toggle .= 'role="button" aria-haspopup="true" aria-expanded="false">';
 
             // Find any icon links
-            foreach ($nav->find('li .dw-icons+a') as $elm) {
-                $icon = $elm->prev_sibling();
-                $elm->innertext = $icon->outertext.'&nbsp;'.$elm->innertext;
-                $icon->outertext = '';
+            foreach ($nav->find('li .dw-icons') as $icon) {
+
+                // $icon = $elm->prev_sibling();
+                $next = $icon->next_sibling();
+                $parent = $icon->parent();
+                switch ($next->tag) {
+                    case 'a':
+                        $next->innertext = '<span>'.$icon->outertext.'&nbsp;'.$next->innertext.'</span>';
+                        $icon->outertext = '';
+                        break;
+                    
+                    default:
+                    if ($parent->class == 'li'){
+                        $parent->innertext = '<span>'.$parent->innertext.'</span>';
+                    }
+                        break;
+                }
             };
 
             // unwrap elements
