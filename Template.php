@@ -2179,7 +2179,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $elm->class .= ' form-inline';
         }
 
-        # Nav tabs and pills
+        // Nav tabs and pills
         foreach ($html->find('.bs-wrap-nav') as $nav_wrap) {
             $nav_class = ['nav'];
             if ($nav_wrap->{'data-nav-type'}) $nav_class[] = 'nav-'.$nav_wrap->{'data-nav-type'};
@@ -2197,9 +2197,20 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                 $atoggle = 'dropdown';
                 $ulclass = 'dropdown-menu';
             }
+            if ($nav_wrap->{'data-nav-append-nodelink'}) {
+                $append_nodelink = $nav_wrap->{'data-nav-append-nodelink'};
+                if ($append_nodelink !== 'true'){
+                    $nodelink_text = $append_nodelink;
+                }
+            }
+
             $nav = $nav_wrap->find('ul',0);
             // Add nav classes
             $nav->class = implode(' ', $nav_class);
+
+            // prepare dropdown menus link
+            $toggle  = '<a class="dropdown-toggle '.$aclass.'" data-toggle="'.$atoggle.'"';
+            $toggle .= 'role="button" aria-haspopup="true" aria-expanded="false">';
 
             // Find any icon links
             foreach ($nav->find('li .dw-icons+a') as $elm) {
@@ -2208,19 +2219,18 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                 $icon->outertext = '';
             };
 
-            // Unwrap each list item
-            foreach ($nav->find('div.li') as $elm) {
+            // unwrap elements
+            foreach ($nav->find('li div.li') as $elm) {
                 $elm->outertext = $elm->innertext;
             }
+
             foreach ($nav->find('li') as $elm) {
                 $elm->{'role'} = 'presentation';
             }
 
-            // dropdown menus
-            $toggle  = '<a class="dropdown-toggle '.$aclass.'" data-toggle="'.$atoggle.'"';
-            $toggle .= 'role="button" aria-haspopup="true" aria-expanded="false">';
-
-            foreach($nav->find('li ul') as $elm){
+            // Unwrap node elements. Reverse through array is important as we modify the structure of nested elements!
+            $dropdowns = array_reverse($nav->find('div+ul'));
+            foreach ($dropdowns as $idx => $elm) {
                 if (strpos($elm->class, $ulclass) !== false) continue;
                 if ($elm->find('a[href='.$this_page.']') && $collapse) {
                     $elm->class .= ' '.$ulclass.' in';         
@@ -2229,11 +2239,33 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                 }
                 $parent = $elm->parent();
                 $parent->class .= ' dropdown';
-                $dropdown = $elm->outertext;
-                $elm->outertext = '';
-                $parent->innertext = $toggle.$parent->innertext.'</a>'.DOKU_LF.$dropdown; 
-            }
 
+                $node = $elm->prev_sibling();
+                $link = $node->children(0);
+                
+                switch ($link->tag) {
+                    case 'a':
+
+                        //we have a link, likely from ns pages plugin
+                        $node->outertext = $toggle.$link->innertext.'</a>';
+                        // Check if link is of current page (not included in prev check)
+                        if ($link->href == $this_page) $elm->class .= ' in'; 
+
+                        if ($append_nodelink) {
+                            if ($nodelink_text){
+                                $link->innertext = $nodelink_text;
+                            } 
+                            $elm->innertext = '<li role="presentation">'.$link->outertext.'</li>'.$elm->innertext;
+                        } 
+                        break;
+
+                    case 'span':
+                        //we likely have an icon link
+                    default:
+                        $node->outertext = $toggle.$node->innertext.'</a>';
+                        break;
+                }
+            }
         }
 
         # Alerts
