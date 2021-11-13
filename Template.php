@@ -3245,7 +3245,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $out .= '<nav id="dw__toc" role="navigation" class="toc-panel panel panel-default small">' . DOKU_LF;
             $out .= '<h6 data-toggle="collapse" data-target="#dw__toc .toc-body" title="' . $lang['toc'] . '" class="panel-heading toc-title">' . iconify('mdi:view-list') . ' ';
             $out .= '<span>' . $lang['toc'] . '</span>';
-            $out .= ' <i class="caret"></i></h6>' . DOKU_LF;
+            $out .= '</h6>' . DOKU_LF;
             $out .= '<div class="panel-body  toc-body collapse ' . (!$this->getConf('tocCollapsed') ? 'in' : '') . '">' . DOKU_LF;
             $out .= $this->normalizeList(html_buildlist($toc, 'nav toc', 'html_list_toc', 'html_li_default', true)) . DOKU_LF;
             $out .= '</div>' . DOKU_LF;
@@ -3258,7 +3258,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $out .= '<nav id="dw__toc-right" role="navigation" class="toc-panel-right panel panel-default small">' . DOKU_LF;
             $out .= '<h6 data-toggle="collapse" data-target="#dw__toc-right .panel-collapse-toc" title="' . $lang['toc'] . '" class="panel-heading toc-panel-heading toc-title">' . iconify('mdi:view-list') . ' ';
             $out .= '<span>' . $lang['toc'] . '</span>';
-            $out .= '&nbsp;&nbsp;&nbsp;<i class="caret"></i></h6>' . DOKU_LF;
+            $out .= '</h6>' . DOKU_LF;
             $out .= '<div class="panel-collapse-toc collapse '.(!$this->getConf('tocCollapsed') ? 'in' : '').'">'. DOKU_LF;
             $out .= '<div class="panel-body  toc-body-right">' . DOKU_LF;
             $out .= $this->normalizeList(html_buildlist($toc, 'nav toc', 'html_list_toc', 'html_li_default', true)) . DOKU_LF;
