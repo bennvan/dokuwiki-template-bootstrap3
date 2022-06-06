@@ -1452,8 +1452,12 @@ td.visible-print,th.visible-print{display:table-cell!important}
 }
 
 /*Additional colour fixes for dokuwiki compatibility*/
-
-
+/*Set dw search hit same as mark */
+.dokuwiki .search_hit {
+    color: inherit !important;
+    padding:.2em !important;
+    background-color:#ffe86f8c !important;
+}
 .navbar-default .badge{background-color:#fff;color:#343a40}
 .navbar-inverse .badge{background-color:#fff;color:#029acf}
 /*@media (max-width:767px){.navbar .dropdown-menu a{color:#fff}*/
