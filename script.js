@@ -14,7 +14,7 @@
 /* DOKUWIKI:include assets/iconify/plugins/fa.js */
 
 
-// Detect Icoonify support with Icon Plugin
+// Detect Iconify support with Icon Plugin
 if (!Iconify.getConfig('defaultAPI').match('lib/plugins/icons')) {
     Iconify.setConfig('defaultAPI', DOKU_TPL + 'iconify.php?prefix={prefix}&icons={icons}');
 }
