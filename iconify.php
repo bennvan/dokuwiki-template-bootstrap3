@@ -76,7 +76,7 @@ $params = array(
     'icon'     => hsc($INPUT->str('icon')),
     'color'    => hsc($INPUT->str('color')),
 );
-
+ 
 $iconify_dir   = dirname(__FILE__) . '/assets/iconify/json';
 $cache_key     = md5(serialize($params) . $conf['template'] . filemtime(__FILE__));
 $cache         = new Cache($cache_key, '.js');
@@ -95,7 +95,7 @@ header("Content-Type: $content_type");
 
 http_cached($cache->cache, $cache_ok);
 
-$collection_file = "$iconify_dir/" . $params['prefix'] . ".json";
+$collection_file = "$iconify_dir/" . $params['prefix'] . ".json.gz";
 
 if (!file_exists($collection_file)) {
     header('Content-Type: text/plain; charset=utf-8', true);
