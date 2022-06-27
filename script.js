@@ -633,14 +633,14 @@ var dw_template = {
         // Media Manager (pop-up)
         if ($media_popup.length || $media_manager.length) {
 
-            jQuery('.qq-upload-button').addClass('btn btn-default');
-            jQuery('.qq-upload-action').addClass('btn btn-success');
+            jQuery('.qq-upload-button').addClass('btn btn-default mr-2');
+            jQuery('.qq-upload-action').addClass('btn btn-success mr-2');
 
             var $btn_delete = jQuery('#mediamanager__btn_delete [type=submit]');
             var $btn_update = jQuery('#mediamanager__btn_update [type=submit]');
 
             if (!$btn_delete.find('span').length) {
-                $btn_delete.addClass('btn btn-danger');
+                $btn_delete.addClass('btn btn-danger mr-2');
             }
 
             jQuery('#page__revisions .sizechange').addClass('label label-primary');
@@ -659,7 +659,7 @@ var dw_template = {
             $media_manager.find('.panel').removeClass('panel').addClass('pull-left');
 
             $sort_buttons.addClass('btn-group');
-            $sort_buttons.find('label').addClass('btn btn-xs btn-default');
+            $sort_buttons.find('label').addClass('btn btn-xs btn-default mr-2');
             $sort_buttons.find('input').hide();
 
             function buttonHandler() {
