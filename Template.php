@@ -18,6 +18,7 @@ class Template
     private $plugins      = [];
     private $confMetadata = [];
     private $toolsMenu    = [];
+    private $handlers;
 
     public $tplDir  = '';
     public $baseDir = '';
@@ -33,7 +34,6 @@ class Template
         $this->tplDir  = tpl_incdir();
         $this->baseDir = tpl_basedir();
 
-        $this->registerHooks();
         $this->initPlugins();
         $this->initToolsMenu();
         $this->loadConfMetadata();
@@ -70,6 +70,9 @@ class Template
         if (!defined('MAX_FILE_SIZE') && $pagesize = $this->getConf('domParserMaxPageSize')) {
             define('MAX_FILE_SIZE', $pagesize);
         }
+
+        # Start Event Handlers
+        $this->handlers = new EventHandlers($this);
     }
 
     public function getVersion()
@@ -84,317 +87,20 @@ class Template
         return $template_version;
     }
 
-    private function registerHooks()
-    {
-        /** @var \Doku_Event_Handler */
-        global $EVENT_HANDLER;
-
-        $events_dispatcher = [
-            'FORM_QUICKSEARCH_OUTPUT'       => 'searchHandler',
-            'FORM_SEARCH_OUTPUT'            => 'searchHandler',
-            // ToDo: Handle new form events in cb.
-
-            'FORM_DRAFT_OUTPUT'             => 'draftFormHandler',
-            'FORM_EDIT_OUTPUT'              => 'editFormHandler',
-            'FORM_LOGIN_OUTPUT'             => 'accountFormHandler',
-            'FORM_PROFILEDELETE_OUTPUT'     => 'accountFormHandler',
-            'FORM_RECENT_OUTPUT'            => 'revisionsFormHandler',
-            'FORM_REGISTER_OUTPUT'          => 'accountFormHandler',
-            'FORM_RESENDPWD_OUTPUT'         => 'accountFormHandler',
-            'FORM_REVISIONS_OUTPUT'         => 'revisionsFormHandler',
-            'FORM_SUBSCRIBE_OUTPUT'         => 'accountFormHandler',
-            'FORM_UPDATEPROFILE_OUTPUT'     => 'accountFormHandler',
-
-            /*-------------- Deprecated form events ------------*/
-            'HTML_DRAFTFORM_OUTPUT'         => 'draftFormHandler',
-            'HTML_EDITFORM_OUTPUT'          => 'editFormHandler',
-            'HTML_LOGINFORM_OUTPUT'         => 'accountFormHandler',
-            'HTML_RESENDPWDFORM_OUTPUT'     => 'accountFormHandler',
-            'HTML_PROFILEDELETEFORM_OUTPUT' => 'accountFormHandler',
-            'HTML_RECENTFORM_OUTPUT'        => 'revisionsFormHandler',
-            'HTML_REGISTERFORM_OUTPUT'      => 'accountFormHandler',
-            'HTML_REVISIONSFORM_OUTPUT'     => 'revisionsFormHandler',
-            'HTML_SUBSCRIBEFORM_OUTPUT'     => 'accountFormHandler',
-            'HTML_UPDATEPROFILEFORM_OUTPUT' => 'accountFormHandler',
-            /*------------------------------------------*/
-
-            'PLUGIN_TAG_LINK'               => 'tagPluginHandler',
-            'PLUGIN_TPLINC_LOCATIONS_SET'   => 'tplIncPluginHandler',
-            'SEARCH_QUERY_FULLPAGE'         => 'searchHandler',
-            'SEARCH_QUERY_PAGELOOKUP'       => 'searchHandler',
-            'SEARCH_RESULT_FULLPAGE'        => 'searchHandler',
-            'SEARCH_RESULT_PAGELOOKUP'      => 'searchHandler',
-            'TPL_CONTENT_DISPLAY'           => 'contentHandler',
-            'TPL_METAHEADER_OUTPUT'         => 'metaheadersHandler',
-
-        ];
-
-        foreach ($events_dispatcher as $event => $method) {
-            $EVENT_HANDLER->register_hook($event, 'BEFORE', $this, $method);
-        }
-    }
-
-    public function accountFormHandler(\Doku_Event $event)
-    {
-        // -------- Deprecated in Igor release ----------- //
-        if (!is_a($event->data, \dokuwiki\Form\Form::class)){  
-            foreach ($event->data->_content as $key => $item) {
-                if (is_array($item) && isset($item['_elem'])) {
-                    $title_icon   = 'account';
-                    $button_class = 'btn btn-success';
-                    $button_icon  = 'arrow-right';
-
-                    switch ($event->name) {
-                        case 'HTML_LOGINFORM_OUTPUT':
-                            $title_icon  = 'account';
-                            $button_icon = 'lock';
-                            break;
-                        case 'HTML_UPDATEPROFILEFORM_OUTPUT':
-                            $title_icon = 'account-card-details-outline';
-                            break;
-                        case 'HTML_PROFILEDELETEFORM_OUTPUT':
-                            $title_icon   = 'account-remove';
-                            $button_class = 'btn btn-danger';
-                            break;
-                        case 'HTML_REGISTERFORM_OUTPUT':
-                            $title_icon = 'account-plus';
-                            break;
-                        case 'HTML_SUBSCRIBEFORM_OUTPUT':
-                            $title_icon = null;
-                            break;
-                        case 'HTML_RESENDPWDFORM_OUTPUT':
-                            $title_icon = 'lock-reset';
-                            break;
-                    }
-
-                    // Legend
-                    if ($item['_elem'] == 'openfieldset') {
-                        $event->data->_content[$key]['_legend'] = (($title_icon) ? iconify("mdi:$title_icon") : '') . ' ' . $event->data->_content[$key]['_legend'];
-                    }
-
-                    // Save button
-                    if (isset($item['type']) && $item['type'] == 'submit') {
-                        $event->data->_content[$key]['class'] = " $button_class";
-                        $event->data->_content[$key]['value'] = (($button_icon) ? iconify("mdi:$button_icon") : '') . ' ' . $event->data->_content[$key]['value'];
-                    }
-                }
-            }
-        }
-        // ------------------------------------------ //
-
-        // ToDo: Alternate method for \dokuwiki\Form\Form (Igor)
-    }
-
-    /**
-     * Handle HTML_DRAFTFORM_OUTPUT event
-     *
-     * @param \Doku_Event $event Event handler
-     *
-     * @return void
-     **/
-    public function draftFormHandler(\Doku_Event $event)
-    {
-        // -------- Deprecated in Igor release ----------- //
-        if (!is_a($event->data, \dokuwiki\Form\Form::class)){   
-            foreach ($event->data->_content as $key => $item) {
-                if (is_array($item) && isset($item['_elem'])) {
-                    if ($item['_action'] == 'draftdel') {
-                        $event->data->_content[$key]['class'] = ' btn btn-danger';
-                        $event->data->_content[$key]['value'] = iconify('mdi:close') . ' ' . $event->data->_content[$key]['value'];
-                    }
-
-                    if ($item['_action'] == 'recover') {
-                        $event->data->_content[$key]['value'] = iconify('mdi:refresh') . ' ' . $event->data->_content[$key]['value'];
-                    }
-
-                    if ($item['_action'] == 'show') {
-                        $event->data->_content[$key]['value'] = iconify('mdi:arrow-left') . ' ' . $event->data->_content[$key]['value'];
-                    }
-                }
-            }
-        }
-        // ------------------------------------------ //
-
-        // ToDo: Alternate method for \dokuwiki\Form\Form (Igor)
-    }
-
-    /**
-     * Handle HTML_EDITFORM_OUTPUT and HTML_DRAFTFORM_OUTPUT event
-     *
-     * @param \Doku_Event $event Event handler
-     *
-     * @return void
-     **/
-    public function editFormHandler(\Doku_Event $event)
-    {
-        // -------- Deprecated in Igor release ----------- //
-        if (!is_a($event->data, \dokuwiki\Form\Form::class)){
-            foreach ($event->data->_content as $key => $item) {
-                if (is_array($item) && isset($item['_elem'])) {
-                    // Save button
-                    if ($item['_action'] == 'save') {
-                        $event->data->_content[$key]['class'] = ' btn btn-success';
-                        $event->data->_content[$key]['value'] = iconify('mdi:content-save') . ' ' . $event->data->_content[$key]['value'];
-                    }
-
-                    // Preview and Show buttons
-                    if ($item['_action'] == 'preview' || $item['_action'] == 'show') {
-                        $event->data->_content[$key]['class'] = ' btn btn-primary';
-                        $event->data->_content[$key]['value'] = iconify('mdi:file-document-outline') . ' ' . $event->data->_content[$key]['value'];
-                    }
-
-                    // Changes button (requres changes plugin)
-                    if ($item['_action'] == 'changes') {
-                        $event->data->_content[$key]['value'] = iconify('mdi:file-compare') . ' ' . $event->data->_content[$key]['value'];
-                    }
-
-                    // Cancel button
-                    if ($item['_action'] == 'cancel') {
-                        $event->data->_content[$key]['class'] = ' btn btn-danger';
-                        $event->data->_content[$key]['value'] = iconify('mdi:arrow-left') . ' ' . $event->data->_content[$key]['value'];
-                    }
-                }
-            }
-        }
-        // ------------------------------------------ //
-
-        // ToDo: Alternate method for \dokuwiki\Form\Form (Igor)
-    }
-
-    /**
-     * Handle HTML_REVISIONSFORM_OUTPUT and HTML_RECENTFORM_OUTPUT events
-     *
-     * @param \Doku_Event $event Event handler
-     *
-     * @return void
-     **/
-    public function revisionsFormHandler(\Doku_Event $event)
-    {
-        // ----- Deprecated in Igor release -------- //
-        if (!is_a($event->data, \dokuwiki\Form\Form::class)){
-            foreach ($event->data->_content as $key => $item) {
-                // Revision form
-                if (is_array($item) && isset($item['_elem'])) {
-                    if ($item['_elem'] == 'opentag' && $item['_tag'] == 'span' && strstr($item['class'], 'sizechange')) {
-                        if (strstr($item['class'], 'positive')) {
-                            $event->data->_content[$key]['class'] .= ' label label-success';
-                        }
-
-                        if (strstr($item['class'], 'negative')) {
-                            $event->data->_content[$key]['class'] .= ' label label-danger';
-                        }
-                    }
-
-                    // Recent form
-                    if ($item['_elem'] == 'opentag' && $item['_tag'] == 'li' && strstr($item['class'], 'minor')) {
-                        $event->data->_content[$key]['class'] .= ' text-muted';
-                    }
-                }
-            }
-        }
-        // --------------------------------------- //
-
-        // ToDo: Alternate method using \dokuwiki\Form\Form (Igor)
-    }
-
-    public function contentHandler(\Doku_Event $event)
-    {
-        $event->data = $this->normalizeContent($event->data);
-    }
-
-    public function searchHandler(\Doku_Event $event)
-    {
-        if ($event->name == 'SEARCH_RESULT_PAGELOOKUP') {
-            array_unshift($event->data['listItemContent'], iconify('mdi:file-document-outline', ['title' => hsc($event->data['page'])]) . ' ');
-        }
-
-        if ($event->name == 'SEARCH_RESULT_FULLPAGE') {
-            $event->data['resultBody']['meta'] = str_replace(
-                ['<span class="lastmod">', '<span class="hits">'],
-                ['<span class="lastmod">' . iconify('mdi:calendar') . ' ', '<span class="hits">' . iconify('mdi:poll') . ' '],
-                '<small>' . $event->data['resultBody']['meta'] . '</small>'
-            );
-        }
-    }
-
-    /**
-     * Load the template assets (Bootstrap, AnchorJS, etc)
-     *
-     * @author  Giuseppe Di Terlizzi <giuseppe.diterlizzi@gmail.com>
-     * @todo    Move the specific-padding size of Bootswatch template in template.less
-     *
-     * @param  \Doku_Event $event
-     */
-    public function metaheadersHandler(\Doku_Event $event)
-    {
-
-        global $ACT;
-        global $INPUT;
-
-        $fixed_top_navbar = $this->getConf('fixedTopNavbar');
-
-        if ($google_analitycs = $this->getGoogleAnalitycs()) {
-            $event->data['script'][] = [
-                'type'  => 'text/javascript',
-                '_data' => $google_analitycs,
-            ];
-        }
-
-        // Apply some FIX
-        if ($ACT || defined('DOKU_MEDIADETAIL')) {
-            // Default Padding
-            $navbar_padding = 20;
-
-            if ($fixed_top_navbar) {
-                $navbar_height = $this->getNavbarHeight();
-                $navbar_padding += $navbar_height;
-            }
-
-            $styles = [];
-
-            // TODO implement in css.php dispatcher
-
-            $styles[] = "body { margin-top: {$navbar_padding}px; height: calc(100% - {$navbar_padding}px); }";
-            $styles[] = ' #dw__toc.affix, #dw__toc-right.affix { top: ' . ($navbar_padding - 10) . 'px;}';
-
-            if ($this->getConf('tocCollapseSubSections')) {
-                $styles[] = ' #dw__toc .nav .nav .nav { display: none; }';
-            }
-
-            $event->data['style'][] = [
-                'type'  => 'text/css',
-                '_data' => '@media screen { ' . implode(" ", $styles) . ' }',
-            ];
-        }
-    }
-
-    public function tagPluginHandler(\Doku_Event $event)
-    {
-        $event->data['class'] .= ' tag label label-default mx-1';
-        $event->data['title'] = iconify('mdi:tag-text-outline') . ' ' . $event->data['title'];
-    }
-
-    public function tplIncPluginHandler(\Doku_Event $event)
-    {
-        $event->data['header']             = 'Header of page below the navbar (header)';
-        $event->data['topheader']          = 'Top Header of page (topheader)';
-        $event->data['pagefooter']         = 'Footer below the page content (pagefooter)';
-        $event->data['pageheader']         = 'Header above the page content (pageheader)';
-        $event->data['sidebarfooter']      = 'Footer below the sidebar (sidebarfooter)';
-        $event->data['sidebarheader']      = 'Header above the sidebar (sidebarheader)';
-        $event->data['rightsidebarfooter'] = 'Footer below the right-sidebar (rightsidebarfooter)';
-        $event->data['rightsidebarheader'] = 'Header above the right-sidebar (rightsidebarheader)';
-    }
-
     private function initPlugins()
     {
-        $this->plugins['tplinc']       = plugin_load('helper', 'tplinc');
-        $this->plugins['tag']          = plugin_load('helper', 'tag');
-        $this->plugins['userhomepage'] = plugin_load('helper', 'userhomepage');
-        $this->plugins['translation']  = plugin_load('helper', 'translation');
-        $this->plugins['pagelist']     = plugin_load('helper', 'pagelist');
-        $this->plugins['publish']      = plugin_load('helper', 'publish');
-        $this->plugins['approve']      = plugin_load('helper', 'approve');
+        $plugins = [
+            'tplinc',
+            'tag',
+            'userhomepage',
+            'translation',
+            'pagelist',
+            'publish',
+            'approve'
+        ];
+        foreach ($plugins as $plugin) {
+            $this->plugins[$plugin] = plugin_load('helper', $plugin);
+        }
     }
 
     public function getPlugin($plugin)
