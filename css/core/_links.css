@@ -38,6 +38,7 @@
     padding: 0 0 0 18px;
     word-wrap: break-word;
 }
+.dokuwiki a.mediafile,
 .dokuwiki a.interwiki {
     padding: 0 0 0 20px;
 }
