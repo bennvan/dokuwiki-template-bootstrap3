@@ -151,7 +151,7 @@ class EventHandlers
         $form = $event->data;
 
         $title_icon   = 'account';
-        $button_class = 'btn btn-success mr-2';
+        $button_class = 'btn btn-success mr-2 mx-auto d-block';
         $button_icon  = 'arrow-right';
 
         switch ($event->name) {
