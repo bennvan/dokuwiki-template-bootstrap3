@@ -16,9 +16,18 @@
   }
 }
 
+.approve-btn-bs-primary {
+  color: #fff;
+  background-color:#2780e3;
+  border-color:#2780e3;
+  &:hover {
+    background-color:#1967be;
+    border-color:#1862b5;
+  }
+}
+
 .approve-btn-bs {
   display: inline-block;
-  margin-left: 0;
   font-weight: 400;
   text-align: center;
   white-space: nowrap;
@@ -37,9 +46,19 @@
   user-select: none;
 }
 
-.plugin__approve_diff {
+.plugin__approve_major {
   .approve-btn-bs;
   .approve-btn-bs-success;
+  float: right;
+  &:hover {
+      text-decoration: none;
+      color: #fff;
+  }
+}
+
+.plugin__approve_minor {
+  .approve-btn-bs;
+  .approve-btn-bs-primary;
   float: right;
   &:hover {
       text-decoration: none;
