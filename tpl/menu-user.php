@@ -10,17 +10,21 @@
 
 global $INFO, $lang, $TPL;
 
+$user = $INPUT->server->str('REMOTE_USER');
+$groups = $INFO['userinfo']['grps'];
 $use_avatar = $TPL->getConf('useAvatar');
+$is_guest = auth_isMember('@guest',$user,$INFO['userinfo']['grps']);
 
 $extensions_update = array();
 $avatar_size       = 96;
 $avatar_size_small = 32;
 
-if ($use_avatar) {
-    $avatar_img_small = $TPL->getAvatar($_SERVER['REMOTE_USER'], $INFO['userinfo']['mail'], $avatar_size_small);
-    $avatar_img       = $TPL->getAvatar($_SERVER['REMOTE_USER'], $INFO['userinfo']['mail'], $avatar_size);
+if ($use_avatar && !$is_guest) {
+    $avatar_img_small = $TPL->getAvatar($user, $INFO['userinfo']['mail'], $avatar_size_small);
+    $avatar_img       = $TPL->getAvatar($user, $INFO['userinfo']['mail'], $avatar_size);
 } else {
     $avatar_img = tpl_getMediaFile(array('images/avatar.png'));
+    $avatar_img_small = $avatar_img;
 }
 
 $label_type = 'info';
@@ -61,10 +65,10 @@ if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
 
         <a href="<?php wl($ID) ?>" class="dropdown-toggle" data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
             <?php if ($use_avatar): ?>
-            <img alt="<?php echo hsc($_SERVER['REMOTE_USER']) ?>" src="<?php echo $avatar_img_small ?>" class="img-circle profile-image" width="<?php echo $avatar_size_small ?>" height="<?php echo $avatar_size_small ?>" />
+            <img alt="<?php echo hsc($user) ?>" src="<?php echo $avatar_img_small ?>" class="img-circle profile-image" width="<?php echo $avatar_size_small ?>" height="<?php echo $avatar_size_small ?>" />
             <?php else: ?>
             <?php echo iconify('mdi:account'); ?>
-            <?php endif; ?> <span class="hidden-lg hidden-md hidden-sm"><?php echo hsc($_SERVER['REMOTE_USER']) ?></span> <span class="caret"></span>
+            <?php endif; ?> <span class="hidden-lg hidden-md hidden-sm"><?php echo hsc($user) ?></span> <span class="caret"></span>
         </a>
 
         <ul class="dropdown-menu" role="menu">
@@ -74,13 +78,13 @@ if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
                 <div class="container-fluid">
 
                     <p class="text-right">
-                        <span style="cursor:help" class="label label-<?php echo $label_type; ?>" title="<?php echo tpl_getLang('user_groups'); ?>: <?php echo join(', ', $INFO['userinfo']['grps']); ?>">
+                        <span style="cursor:help" class="label label-<?php echo $label_type; ?>" title="<?php echo tpl_getLang('user_groups'); ?>: <?php echo join(', ', $groups); ?>">
                             <?php echo $user_type; ?>
                         </span>
                     </p>
 
                     <p class="text-center">
-                        <img alt="<?php echo hsc($_SERVER['REMOTE_USER']) ?>" src="<?php echo $avatar_img ?>" class="img-circle" width="<?php echo $avatar_size ?>" height="<?php echo $avatar_size ?>" />
+                        <img alt="<?php echo hsc($user) ?>" src="<?php echo $avatar_img ?>" class="img-circle" width="<?php echo $avatar_size ?>" height="<?php echo $avatar_size ?>" />
                     </p>
 
                     <div class="mb-2">
@@ -88,7 +92,7 @@ if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
                             <strong><?php echo hsc($INFO['userinfo']['name']) ?></strong>
                         </div>
                         <div class="small">
-                            <bdi><?php echo hsc($_SERVER['REMOTE_USER']) ?></bdi>
+                            <bdi><?php echo hsc($user) ?></bdi>
                         </div>
                         <div class="small">
                             <?php echo $INFO['userinfo']['mail'] ?>
