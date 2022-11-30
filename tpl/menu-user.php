@@ -16,6 +16,13 @@ $use_avatar = $TPL->getConf('useAvatar');
 $is_guest = auth_isMember('@guest',$user,$INFO['userinfo']['grps']);
 $is_user = auth_isMember('@user',$user,$INFO['userinfo']['grps']);
 
+if ($TPL->getPlugin('bootswrapper') && $is_user) {
+    $hlp = $TPL->getPlugin('bootswrapper');
+    $readonly = $hlp->get_user_settings('render readonly');
+} else {
+    $readonly = false;
+}
+
 $extensions_update = array();
 $avatar_size       = 96;
 $avatar_size_small = 32;
@@ -39,6 +46,11 @@ if ($INFO['ismanager']) {
 if ($INFO['isadmin']) {
     $label_type = 'danger';
     $user_type  = 'Admin';
+}
+
+if ($is_user && $readonly){
+    $label_type = 'info';
+    $user_type = 'Read-only mode';
 }
 
 if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
@@ -135,8 +147,6 @@ if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
                 }
 
                 if ($TPL->getPlugin('bootswrapper') && $is_user) {
-                    $hlp = $TPL->getPlugin('bootswrapper');
-                    $readonly = $hlp->get_user_settings('render readonly');
                     $cls = $readonly ? 'active' : '';
                     $html = '<li class="' . $cls . '">';
                     $html .= '<a rel="nofollow" href="' . wl($ID,['do'=>'readonly']) . '" title="'. tpl_getLang('readonly_desc') .'">';
