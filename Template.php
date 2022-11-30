@@ -96,7 +96,8 @@ class Template
             'translation',
             'pagelist',
             'publish',
-            'approve'
+            'approve',
+            'bootswrapper'
         ];
         foreach ($plugins as $plugin) {
             $this->plugins[$plugin] = plugin_load('helper', $plugin);

@@ -14,6 +14,7 @@ $user = $INPUT->server->str('REMOTE_USER');
 $groups = $INFO['userinfo']['grps'];
 $use_avatar = $TPL->getConf('useAvatar');
 $is_guest = auth_isMember('@guest',$user,$INFO['userinfo']['grps']);
+$is_user = auth_isMember('@user',$user,$INFO['userinfo']['grps']);
 
 $extensions_update = array();
 $avatar_size       = 96;
@@ -132,6 +133,19 @@ if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
                 if ($INFO['isadmin']) {
                     echo $TPL->getToolMenuItemLink('user', 'admin');
                 }
+
+                if ($TPL->getPlugin('bootswrapper') && $is_user) {
+                    $hlp = $TPL->getPlugin('bootswrapper');
+                    $readonly = $hlp->get_user_settings('render readonly');
+                    $cls = $readonly ? 'active' : '';
+                    $html = '<li class="' . $cls . '">';
+                    $html .= '<a rel="nofollow" href="' . wl($ID,['do'=>'readonly']) . '" title="'. tpl_getLang('readonly_desc') .'">';
+                    $html .= iconify('mdi:glasses');
+                    $html .= '<span>' . ' ' . hsc(tpl_getLang('readonly')) . '</span>';
+                    $html .= '</a>';
+
+                    echo $html;
+                } 
 
             ?>
 

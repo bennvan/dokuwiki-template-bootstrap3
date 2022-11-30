@@ -30,6 +30,8 @@ $lang['sharednamespace']         = 'Shared';
 $lang['privatenamespace_desc']   = 'For you only';
 $lang['publicnamespace_desc']    = 'Anyone can read these pages';
 $lang['sharednamespace_desc']    = 'Only other logged-in users can read these pages';
+$lang['readonly']                = 'Read-only mode';
+$lang['readonly_desc']           = 'Toggle read-only/edit mode';
 
 // Configuration Manager Template Sections
 $lang['config_theme']            = 'Theme';
