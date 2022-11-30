@@ -140,7 +140,7 @@ if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
                     $cls = $readonly ? 'active' : '';
                     $html = '<li class="' . $cls . '">';
                     $html .= '<a rel="nofollow" href="' . wl($ID,['do'=>'readonly']) . '" title="'. tpl_getLang('readonly_desc') .'">';
-                    $html .= iconify('mdi:glasses');
+                    $html .= iconify('mdi:file-lock');
                     $html .= '<span>' . ' ' . hsc(tpl_getLang('readonly')) . '</span>';
                     $html .= '</a>';
 

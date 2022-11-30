@@ -2606,9 +2606,13 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $html->load($content, true, false);
 
             foreach ($html->find('.plugin_oauth a') as $elm) {
-               $elm->class = 'btn btn-default';
-               $elm->style = 'font-weight:normal;';
+               $elm->class = 'btn btn-default btn-block justify-content-center';
+               $elm->style = 'font-weight:normal;border:1px;';
                $elm->setAttribute('data-no-instant', '');
+            }
+
+            foreach ($html->find('.plugin_oauth legend') as $elm){
+                $elm->innertext = iconify('mdi:chevron-right'). ' ' . $elm->innertext;
             }
 
             $content = $html->save();
