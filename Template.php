@@ -10,7 +10,7 @@ namespace dokuwiki\template\bootstrap3;
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 
-use \dokuwiki\Extension\Event;
+use dokuwiki\Extension\Event;
 
 class Template
 {
@@ -1846,7 +1846,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         # Page Heading (h1-h2)
         # TODO this class will be removed in Bootstrap >= 4.0 version
         foreach ($html->find('h1,h2,h3') as $elm) {
-            $elm->class .= ' page-header pb-3 mb-4 mt-5'; # TODO replace page-header with border-bottom in BS4
+            $elm->class .= ' page-header pb-3 mb-3 mt-4'; # TODO replace page-header with border-bottom in BS4
         }
 
         # Media Images
