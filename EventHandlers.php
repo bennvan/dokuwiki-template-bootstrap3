@@ -11,7 +11,8 @@ namespace dokuwiki\template\bootstrap3;
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 
-use \dokuwiki\Form\HTMLElement;
+use dokuwiki\Form\HTMLElement;
+use dokuwiki\Extension\Event;
 
 class EventHandlers
 {
@@ -25,8 +26,8 @@ class EventHandlers
         global $EVENT_HANDLER;
 
         $events_dispatcher = [
-            'FORM_QUICKSEARCH_OUTPUT'       => 'searchHandler',
-            'FORM_SEARCH_OUTPUT'            => 'searchHandler',
+            'FORM_QUICKSEARCH_OUTPUT'       => ['BEFORE', ['search']],
+            'FORM_SEARCH_OUTPUT'            => ['BEFORE', ['search']],
 
             'FORM_SEARCHMEDIA_OUTPUT'       => ['BEFORE', ['commonStyles']],
             'FORM_UPLOAD_OUTPUT'            => ['BEFORE', ['commonStyles']],
@@ -41,20 +42,6 @@ class EventHandlers
             'FORM_REGISTER_OUTPUT'          => ['BEFORE', ['commonStyles', 'formAccountOutput']],
             'FORM_REVISIONS_OUTPUT'         => ['BEFORE', ['commonStyles', 'formRevisionsOutput']],
             'FORM_SUBSCRIBE_OUTPUT'         => ['BEFORE', ['commonStyles', 'formAccountOutput']],
-
-            /*-------------- Deprecated form events ------------*/
-            'HTML_DRAFTFORM_OUTPUT'         => ['BEFORE',['htmlDraftFormOutput']],
-            'HTML_EDITFORM_OUTPUT'          => ['BEFORE',['htmlEditFormOutput']],
-            'HTML_LOGINFORM_OUTPUT'         => ['BEFORE',['htmlAccountFormOutput']],
-            'HTML_RESENDPWDFORM_OUTPUT'     => ['BEFORE',['htmlAccountFormOutput']],
-            'HTML_UPDATEPROFILEFORM_OUTPUT' => ['BEFORE',['htmlAccountFormOutput']],
-            'HTML_PROFILEDELETEFORM_OUTPUT' => ['BEFORE',['htmlAccountFormOutput']],
-            'HTML_RECENTFORM_OUTPUT'        => ['BEFORE',['htmlRevisionsFormOutput']],
-            'HTML_REGISTERFORM_OUTPUT'      => ['BEFORE',['htmlAccountFormOutput']],
-            'HTML_REVISIONSFORM_OUTPUT'     => ['BEFORE',['htmlRevisionsFormOutput']],
-            'HTML_SUBSCRIBEFORM_OUTPUT'     => ['BEFORE',['htmlAccountFormOutput']],
-            
-            /*------------------------------------------*/
 
             'PLUGIN_TAG_LINK'               => ['BEFORE',['pluginTagLink']],
             'PLUGIN_TPLINC_LOCATIONS_SET'   => ['BEFORE',['tplIncPlugin']],
@@ -75,7 +62,7 @@ class EventHandlers
         }
     }
 
-    public function formDraftOutput(\Doku_Event $event)
+    public function formDraftOutput(Event $event)
     {
         /** @var dokuwiki\Form\Form $form */
         $form = $event->data;
@@ -103,7 +90,7 @@ class EventHandlers
         }
     }
 
-    public function formRevisionsOutput(\Doku_Event $event)
+    public function formRevisionsOutput(Event $event)
     {
         /** @var dokuwiki\Form\Form $form */
         $form = $event->data;
@@ -128,7 +115,7 @@ class EventHandlers
         }
     }
 
-    public function commonStyles(\Doku_Event $event)
+    public function commonStyles(Event $event)
     {
         /** @var dokuwiki\Form\Form $form */
         $form = $event->data;
@@ -145,7 +132,7 @@ class EventHandlers
         }
     }
 
-    public function formAccountOutput(\Doku_Event $event)
+    public function formAccountOutput(Event $event)
     {
         /** @var dokuwiki\Form\Form $form */
         $form = $event->data;
@@ -193,7 +180,7 @@ class EventHandlers
 
     }
 
-    public function formEditOutput(\Doku_Event $event)
+    public function formEditOutput(Event $event)
     {
         global $lang;
 
@@ -238,7 +225,7 @@ class EventHandlers
             $pos);
     }
 
-    public function tplContent(\Doku_Event $event)
+    public function tplContent(Event $event)
     {
         $event->data = $this->template->normalizeContent($event->data);
     }
@@ -266,7 +253,7 @@ class EventHandlers
      *
      * @param  \Doku_Event $event
      */
-    public function tplMetaHeaderOutput(\Doku_Event $event)
+    public function tplMetaHeaderOutput(Event $event)
     {
 
         global $ACT;
@@ -309,7 +296,7 @@ class EventHandlers
         }
     }
 
-    public function pluginTagLink(\Doku_Event $event)
+    public function pluginTagLink(Event $event)
     {
         $event->data['class'] .= ' tag label label-default mx-1';
         $event->data['title'] = iconify('mdi:tag-text-outline') . ' ' . $event->data['title'];
@@ -338,7 +325,7 @@ class EventHandlers
      *
      * @return void
      **/
-    public function htmlAccountFormOutput(\Doku_Event $event)
+    public function htmlAccountFormOutput(Event $event)
     { 
         foreach ($event->data->_content as $key => $item) {
             if (is_array($item) && isset($item['_elem'])) {
@@ -391,7 +378,7 @@ class EventHandlers
      *
      * @return void
      **/
-    public function htmlDraftFormOutput(\Doku_Event $event)
+    public function htmlDraftFormOutput(Event $event)
     {
         foreach ($event->data->_content as $key => $item) {
             if (is_array($item) && isset($item['_elem'])) {
@@ -419,7 +406,7 @@ class EventHandlers
      *
      * @return void
      **/
-    public function htmlEditFormOutput(\Doku_Event $event)
+    public function htmlEditFormOutput(Event $event)
     {
         foreach ($event->data->_content as $key => $item) {
             if (is_array($item) && isset($item['_elem'])) {
@@ -457,7 +444,7 @@ class EventHandlers
      *
      * @return void
      **/
-    public function htmlRevisionsFormOutput(\Doku_Event $event)
+    public function htmlRevisionsFormOutput(Event $event)
     {
         foreach ($event->data->_content as $key => $item) {
             // Revision form
