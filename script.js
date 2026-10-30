@@ -79,6 +79,7 @@ var dw_template = {
             dw_template.mobileLayout();
             dw_template.collapseSections();
             dw_template.tocResize();
+            dw_template.tocResizeRight();
         });
 
         // Re-initialize some components in media-manager
@@ -917,8 +918,11 @@ var dw_template = {
     //Table of contents (rightsidebar)
     tocRight: function () {
 
-        var $dw_toc_right = jQuery('#dw__toc-right');
+        var $dw_toc_right = jQuery('#dokuwiki__rightsidetoc #dw__toc-right');
         if (!$dw_toc_right.length) return false;
+
+        // Capture the sidebar width before affix takes the panel out of flow.
+        dw_template.tocResizeRight();
 
         // Set TOC Affix
         if (JSINFO.bootstrap3.config.tocAffix) {
@@ -980,6 +984,7 @@ var dw_template = {
             $preview.addClass('col-sm-9 col-md-8 col-lg-8 mr-3');
             jQuery('<div class="col-md-1 col-lg-1 col-sm-0"></div>').insertBefore($preview);
             jQuery('#dokuwiki__rightsidetoc').insertAfter($preview);
+            dw_template.tocResizeRight();
         }
 
     },
@@ -1009,10 +1014,17 @@ var dw_template = {
 
     tocResizeRight: function () {
 
-        var $dw_toc_right = jQuery('#dw__toc-right');
+        // The mobile navbar has a cloned TOC; measure only the sidebar copy.
+        var $dw_toc_right = jQuery('#dokuwiki__rightsidetoc #dw__toc-right');
         if (!$dw_toc_right.length) return false;
 
-        if (JSINFO.bootstrap3.config.tocAffix) {
+        if (window.matchMedia('(min-width: 768px)').matches) {
+            $dw_toc_right.outerWidth($dw_toc_right.parent().width());
+        } else {
+            $dw_toc_right.css('width', '');
+        }
+
+        if (JSINFO.bootstrap3.config.tocAffix && $dw_toc_right.data('bs.affix')) {
             $dw_toc_right.affix('checkPosition');
         }
 

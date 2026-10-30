@@ -182,12 +182,13 @@ div.pad #dw__toc {
 
 /*Right side toc media query size adjustments*/
 
-/*Dont affix when the toc is moved into the navbar*/
-nav #dw__toc-right.affix {
+/* The mobile navbar contains a clone, which must not inherit a fixed width. */
+nav #dw__toc-right {
   position: static !important;
+  width: auto !important;
 }
 
-@media (min-width:576px) {
+@media (max-width:767px) {
   #dw__toc-right.affix { 
     position: static !important;
   }
@@ -196,20 +197,5 @@ nav #dw__toc-right.affix {
 @media (min-width:768px) {
   #dw__toc-right.affix {
     position: fixed !important;
-    width: 140px;
-  }
-}
-
-@media (min-width: 992px) {
-  #dw__toc-right.affix {
-    position: fixed !important;
-    width: 190px;
-  }
-}
-
-@media (min-width: 1200px) {
-  #dw__toc-right.affix {
-    position: fixed !important;
-    width: 280px;
   }
 }
