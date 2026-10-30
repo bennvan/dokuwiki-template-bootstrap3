@@ -8,6 +8,10 @@
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 
+use dokuwiki\plugin\extension\Exception as ExtensionException;
+use dokuwiki\plugin\extension\Local;
+use dokuwiki\plugin\extension\Repository;
+
 global $INFO, $lang, $TPL;
 
 $user = $INPUT->server->str('REMOTE_USER');
@@ -54,21 +58,35 @@ if ($is_user && $readonly){
 }
 
 if ($INFO['isadmin'] && $TPL->getConf('notifyExtensionsUpdate')) {
+    if (class_exists(Local::class)) {
+        // Extension manager API since Librarian.
+        try {
+            $extensions = (new Local())->getExtensions();
+            Repository::getInstance()->initExtensions(array_keys($extensions));
+            foreach ($extensions as $extension) {
+                if ($extension->isEnabled() && $extension->isUpdateAvailable()) {
+                    $extensions_update[] = $extension->getDisplayName();
+                }
+            }
+        } catch (ExtensionException $ignore) {
+            // Keep the user menu available when the repository cannot be reached.
+        }
+    } else {
+        // Compatibility with the extension manager through Kaos.
+        /** @var $plugin_controller PluginController */
+        global $plugin_controller;
 
-    /** @var $plugin_controller PluginController */
-    global $plugin_controller;
-
-    $extension = plugin_load('helper','extension_extension');
-
-    foreach ($plugin_controller->getList('', true) as $plugin) {
-        $extension->setExtension($plugin);
-        if ($extension->updateAvailable() && $extension->isEnabled()) {
-            $extensions_update[] = $extension->getDisplayName();
+        if ($extension = plugin_load('helper', 'extension_extension')) {
+            foreach ($plugin_controller->getList('', true) as $plugin) {
+                $extension->setExtension($plugin);
+                if ($extension->updateAvailable() && $extension->isEnabled()) {
+                    $extensions_update[] = $extension->getDisplayName();
+                }
+            }
         }
     }
 
-  sort($extensions_update);
-
+    sort($extensions_update);
 }
 
 ?>
