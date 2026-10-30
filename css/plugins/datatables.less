@@ -7,6 +7,61 @@
  */
 
 /* DataTables Plugin */
+
+// The theme's generic .btn hover turns text white without supplying a
+// matching dark background for DataTables' secondary buttons.
+.dokuwiki .dt-buttons .btn-secondary {
+  &:hover, &:focus, &:active {
+    color: inherit;
+  }
+
+  &:not(:disabled):not(.disabled) {
+    &:hover, &:focus {
+      background-color: #ddd;
+    }
+
+    &:active {
+      background-color: #ccc;
+    }
+  }
+}
+
+// Keep the original Bootstrap 3 sort glyphs with DataTables 1.13.
+.dokuwiki table.dataTable thead > tr > th,
+.dokuwiki table.dataTable thead > tr > td {
+  &.sorting, &.sorting_asc, &.sorting_desc,
+  &.sorting_asc_disabled, &.sorting_desc_disabled {
+    &::before {
+      display: none;
+    }
+
+    &::after {
+      top: auto;
+      bottom: 8px;
+      right: 8px;
+      font-family: 'Glyphicons Halflings';
+      font-size: inherit;
+      line-height: inherit;
+      content: '\e150';
+      opacity: 0.2;
+    }
+  }
+
+  &.sorting_asc::after {
+    content: '\e155';
+    opacity: 0.5;
+  }
+
+  &.sorting_desc::after {
+    content: '\e156';
+    opacity: 0.5;
+  }
+
+  &.sorting_asc_disabled::after, &.sorting_desc_disabled::after {
+    display: none;
+  }
+}
+
 .dt-wrapper {
 
   .form-control {
