@@ -19,8 +19,9 @@ define('DOKU_VERSION_ELENOR_OF_TSORT',    48); // 2016-06-26
 define('DOKU_VERSION_DETRITUS',           47); // 2015-08-10 (PHP >= 5.3.3)
 
 
-// Load compatibility Menu classes for pre-Greebo releases
-if (DOKU_VERSION < DOKU_VERSION_GREEBO) {
+// Media entry points do not set $updateVersion. Zero means unknown, not a legacy release.
+// Load compatibility Menu classes only for known pre-Greebo releases.
+if (DOKU_VERSION > 0 && DOKU_VERSION < DOKU_VERSION_GREEBO) {
 
     define('DOKU_INC_COMPAT', realpath(dirname(__FILE__) . '/../') . '/');
 
@@ -55,7 +56,7 @@ if (DOKU_VERSION < DOKU_VERSION_GREEBO) {
 }
 
 // Load template class for previous "Frusterick Manners" (2017-02-19) releases
-if (DOKU_VERSION < DOKU_VERSION_FRUSTERICK_MANNERS) {
+if (DOKU_VERSION > 0 && DOKU_VERSION < DOKU_VERSION_FRUSTERICK_MANNERS) {
 
     $tpl_incdir = tpl_incdir();
 
