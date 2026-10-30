@@ -11,7 +11,6 @@ namespace dokuwiki\template\bootstrap3;
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 
-use dokuwiki\Form\HTMLElement;
 use dokuwiki\Extension\Event;
 
 class EventHandlers
@@ -84,9 +83,10 @@ class EventHandlers
 
         foreach ($changes as $key => $set) {
             $pos = $form->findPositionByAttribute('name', $key);
-            $elm = $form->getElementAt($pos);
-            $elm->addClass($set['class']);
-            $this->prependElmContent($form, $elm, $pos, iconify($set['icon']));
+            if ($pos !== false) {
+                $form->getElementAt($pos)->addClass($set['class'])
+                    ->attr('data-dw-icon', $set['icon']);
+            }
         }
     }
 
@@ -159,23 +159,25 @@ class EventHandlers
             case 'FORM_SUBSCRIBE_OUTPUT':
                 $title_icon = null;
                 break;
-            case 'FORM_RESENDPWDFORM_OUTPUT':
+            case 'FORM_RESENDPWD_OUTPUT':
                 $title_icon = 'lock-reset';
                 break;
         }
 
         // Save button
         $pos = $form->findPositionByAttribute('type', 'submit');
-        if ($pos) {
-            $elm = $form->getElementAt($pos)->addClass($button_class);
-            $this->prependElmContent($form, $elm, $pos, iconify("mdi:$button_icon"));
+        if ($pos !== false) {
+            $form->getElementAt($pos)->addClass($button_class)
+                ->attr('data-dw-icon', "mdi:$button_icon");
         }
 
         // Legend
         $pos = $form->findPositionByType('fieldsetopen');
-        if ($pos) {
-            $elm = $form->getElementAt($pos);
-            $this->prependElmContent($form, $elm, $pos, iconify("mdi:$title_icon"), 'legend');
+        if ($pos !== false && $title_icon !== null) {
+            $form->getElementAt($pos)->attrs([
+                'data-dw-icon' => "mdi:$title_icon",
+                'data-dw-icon-target' => 'legend',
+            ]);
         }
 
     }
@@ -208,21 +210,11 @@ class EventHandlers
 
         foreach ($changes as $key => $set) {
             $pos = $form->findPositionByAttribute('name', $key);
-            $elm = $form->getElementAt($pos);
-            $elm->addClass($set['class']);
-            $this->prependElmContent($form, $elm, $pos, iconify($set['icon']));
+            if ($pos !== false) {
+                $form->getElementAt($pos)->addClass($set['class'])
+                    ->attr('data-dw-icon', $set['icon']);
+            }
         }
-    }
-
-    public function prependElmContent($form, $elm, $pos, $prepend, $type='auto') {
-        /** @var dokuwiki\Form\Form $form */
-        /** @var dokuwiki\Form\Element $elm */
-        if ($type === 'auto') $type = $elm->getType();
-
-        $form->replaceElement(
-            new HTMLElement(
-                preg_replace('/(\<'.$type.'.*\>)(.*)(\<\/'.$type.'\>)/', '${1}'.$prepend.' ${2}${3}', $elm->toHTML())),
-            $pos);
     }
 
     public function tplContent(Event $event)

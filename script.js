@@ -158,6 +158,20 @@ var dw_template = {
         // Toolbar
         jQuery('#tool__bar').addClass('btn-group');
 
+        // Add form icons without replacing DokuWiki's form elements.
+        jQuery('[data-dw-icon]').each(function () {
+            var $self = jQuery(this);
+            var $icon = jQuery('<span class="iconify mr-1">').attr('data-icon', $self.attr('data-dw-icon'));
+
+            if ($self.attr('data-dw-icon-target')) {
+                $self.find($self.attr('data-dw-icon-target')).prepend($icon);
+            } else {
+                $self.prepend($icon);
+            }
+            // Media-manager AJAX requests run common() again.
+            $self.removeAttr('data-dw-icon');
+        });
+
         // Picker
         if (dw_mode('edit')) {
             jQuery('.picker').addClass('btn-group');
