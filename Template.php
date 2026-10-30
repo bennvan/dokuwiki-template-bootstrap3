@@ -1880,7 +1880,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 
         # Form controls
         foreach ($html->find('input, select, textarea') as $elm) {
-            if (in_array($elm->type, ['submit', 'reset', 'button', 'hidden', 'image', 'checkbox', 'radio'])) {
+            if (in_array($elm->type, ['submit', 'reset', 'button', 'hidden', 'image', 'checkbox', 'radio', 'color'])) {
                 continue;
             }
             $elm->class .= ' form-control';
