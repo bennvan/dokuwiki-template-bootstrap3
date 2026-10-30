@@ -11,7 +11,7 @@ global $TPL;
 global $INFO;
 
 // check control macro to render breadcrumbs
-$meta = $INFO['meta']['internal'];
+$meta = $INFO['meta']['internal'] ?? [];
 $nopagetools = (isset($meta['nopagetools']) ? $meta['nopagetools'] : false);
 
 if ($TPL->getConf('showPageTools') && !$nopagetools): ?>

@@ -16,7 +16,7 @@ global $INFO;
 $hidemodes = explode(' ', tpl_getConf('breadcrumbHideModes'));
 
 // check control macro to render breadcrumbs
-$meta = $INFO['meta']['internal'];
+$meta = $INFO['meta']['internal'] ?? [];
 $nobread = (isset($meta['nobread']) ? $meta['nobread'] : false);
 
 ?>

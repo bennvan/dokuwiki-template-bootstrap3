@@ -169,21 +169,27 @@ class Template
         $helper = $this->getPlugin('approve');
         if (!$helper) return ''; 
 
-        // Try to get the approvals db
+        // If approval status cannot be checked, do not fall back to a draft.
         try {
             /** @var \helper_plugin_approve_db $db_helper */
             $db_helper = plugin_load('helper', 'approve_db');
+            if (!$db_helper) {
+                throw new \RuntimeException('The approval database helper is unavailable.');
+            }
             $sqlite = $db_helper->getDB();
-        } catch (Exception $e) {
-            msg($e->getMessage(), -1);
-            return '';
+            if (!$sqlite) {
+                throw new \RuntimeException('The approval database is unavailable.');
+            }
+
+            $approver = null;
+            if (!$helper->use_approve_here($sqlite, $pageid, $approver)) return '';
+            if ($helper->client_can_see_drafts($pageid, $approver)) return '';
+
+            $last_approved_rev = $helper->find_last_approved($sqlite, $pageid);
+        } catch (\Throwable $e) {
+            msg(hsc($e->getMessage()), -1);
+            return null;
         }
-
-        //Always use latest revision if 
-        if (!$helper->use_approve_here($sqlite, $pageid, $approver)) return '';
-        if ($helper->client_can_see_drafts($pageid, $approver)) return '';
-
-        $last_approved_rev = $helper->find_last_approved($sqlite, $pageid);
 
         //no page is approved
         if (!$last_approved_rev) return null;
@@ -216,7 +222,7 @@ class Template
             $content = $this->getLastApprovedPage($location,$this->getConf('useACL'));
         }
 
-        if ($content === '') {
+        if ($content === '' || $content === false || $content === null) {
             return '';
         }
 
@@ -536,13 +542,20 @@ class Template
     */
     public function fetchAuthorsFromMetadata(){
         global $INFO;
-        $authors = array();
-        $creator = $INFO['meta']['user'];
-        $creatorfullname = $INFO['meta']['creator'];
-        $authors[$creator] = $creatorfullname;
-
-        // Authors from metadata
-        if(isset($INFO) && array_key_exists('contributor',$INFO['meta']))   $authors =  array_merge($INFO['meta']['contributor'],$authors);
+        $meta = $INFO['meta'] ?? [];
+        $authors = [];
+        $contributors = $meta['contributor'] ?? [];
+        if (is_array($contributors)) {
+            foreach ($contributors as $user => $name) {
+                if ((string) $user !== '' && is_string($name)) {
+                    $authors[$user] = $name;
+                }
+            }
+        }
+        $creator = $meta['user'] ?? null;
+        if (is_string($creator) && $creator !== '') {
+            $authors[$creator] = is_string($meta['creator'] ?? null) ? $meta['creator'] : $creator;
+        }
         return $authors;
     }
 
@@ -680,7 +693,7 @@ class Template
         global $ID;
 
         // check control macro to render page info
-        $meta = $INFO['meta']['internal']; 
+        $meta = $INFO['meta']['internal'] ?? [];
         $nopageinfo = (isset($meta['nopageinfo']) ? $meta['nopageinfo'] : false);
 
         if ($nopageinfo) return false;
@@ -771,7 +784,7 @@ class Template
         global $ID;
 
         // check control macro to render page info
-        $meta = $INFO['meta']['internal']; 
+        $meta = $INFO['meta']['internal'] ?? [];
         $nopageinfo = (isset($meta['nopageinfo']) ? $meta['nopageinfo'] : false);
 
         // return if we are not allowed to view the page
@@ -1639,111 +1652,113 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         @require $this->tplDir . 'tpl/sidebar.php';
     }
 
-    /**
-     * get the svg aspect ratio from a url
-     *
-     * @author  Ben van Magill <ben.vanmagill16@gmail.com>
-     *
-     * @param  string  $url
-     */
+    /** Return intrinsic dimensions for a locally rendered SVG object. */
     private function getIntrinsicSVGSize($url)
     {
-        global $conf;
-        // analyse the image
-        $locmedia = DOKU_BASE.'_media/';
-        if (strpos($url, $locmedia) === 0) {
-            $src = substr($url, strlen($locmedia));
-            list($path, $params) = explode('?', $src, 2);
-            preg_match('/rev=([0-9]+)/', $params, $rev);
-            preg_match('/w=([0-9]+)/', $params, $w);
-            preg_match('/h=([0-9]+)/', $params, $h);
-            $rev = (isset($rev[1]) ? $rev[1] : '');
-            // Width and height were in params, just return them
-            if ($w[1]>0 && $h[1]>0) {
-                return array($w[1], $h[1]);
-            }
-            // split path of any other params 
-            $path = explode('&', $path, 2);
-            $xml = mediaFN($path[0], $rev, false);
-            if (!file_exists($xml)) return array(0,0);
-            $xmlget = simplexml_load_file($xml);
-            $xmlattributes = $xmlget->attributes();
-            $width = (string) $xmlattributes->width; 
-            $height = (string) $xmlattributes->height;
-
-            return array($width, $height);
-        } 
-
-        return array(0, 0);
+        return $this->getIntrinsicMediaSize($url, true);
     }
 
-    /**
-     * get the image aspect ratio from a url
-     *
-     * @author  Ben van Magill <ben.vanmagill16@gmail.com>
-     *
-     * @param  string  $url
-     */
+    /** Return intrinsic dimensions for a wiki or plugin image. */
     private function getIntrinsicImageSize($url)
     {
+        return $this->getIntrinsicMediaSize($url);
+    }
+
+    /** Resolve media URLs without treating a local web path as a remote URL. */
+    private function getIntrinsicMediaSize($url, $svg = false)
+    {
         global $conf;
-        // analyse the image
-        $locmedia = DOKU_BASE.'_media/';
-        $extmedia = DOKU_BASE.'lib/exe/fetch.php?';
-        $pluginmedia = DOKU_BASE .'lib/plugins/';
-        if (strpos($url, $locmedia) === 0) {
-            $src = substr($url, strlen($locmedia));
-            list($path, $params) = explode('?', $src, 2);
-            preg_match('/rev=([0-9]+)/', $params, $rev);
-            preg_match('/w=([0-9]+)/', $params, $w);
-            preg_match('/h=([0-9]+)/', $params, $h);
-            $rev = (isset($rev[1]) ? $rev[1] : '');
-            // Width and height were in params, just return them
-            if ($w[1]>0 && $h[1]>0) {
-                return array($w[1], $h[1]);
-            } 
-            $media = mediaFN($path, $rev, false);
-            if (!file_exists($media)) return array(0,0);
-        } 
-        elseif (strpos($url, $extmedia) === 0) {
-            preg_match('/(?:\?|&)media=(.*)/', $url, $path);
-            preg_match('/cache=([a-zA-Z]+)/', $url, $cache);
-            $path = urldecode($path[1]);
-            // Decide what caching to do
-            if ($cache[1] === 'nocache') {
-                $cache = 0;
-            } elseif ($cache[1] === 'recache') {
-                $cache = $conf['cachetime'];
+
+        if (!is_string($url) || $url === '') return [0, 0];
+        $parts = parse_url(html_entity_decode($url, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        if ($parts === false) return [0, 0];
+
+        // Absolute links must belong to this wiki before mapping to its files.
+        if (isset($parts['host'])) {
+            $base = defined('DOKU_URL') ? parse_url(DOKU_URL) : [];
+            if (strcasecmp($parts['host'], $base['host'] ?? '') !== 0
+                || ($parts['port'] ?? null) !== ($base['port'] ?? null)) return [0, 0];
+        } elseif (isset($parts['scheme'])) {
+            return [0, 0];
+        }
+
+        parse_str($parts['query'] ?? '', $params);
+        $path = $parts['path'] ?? '';
+        $media_id = null;
+        $file = null;
+        foreach ([DOKU_BASE . '_media/', DOKU_BASE . 'lib/exe/fetch.php/'] as $prefix) {
+            if (strpos($path, $prefix) === 0) {
+                $media_id = rawurldecode(substr($path, strlen($prefix)));
+                break;
+            }
+        }
+        if ($path === DOKU_BASE . 'lib/exe/fetch.php') {
+            $media_id = $params['media'] ?? null;
+        }
+        if ($media_id === null) {
+            // Plugin/template assets are filesystem paths, not HTTP requests.
+            $prefix = DOKU_BASE . 'lib/';
+            if (strpos($path, $prefix) !== 0) return [0, 0];
+            $asset = rawurldecode(substr($path, strlen($prefix)));
+            if (str_contains($asset, "\0")) return [0, 0];
+            $file = realpath(DOKU_INC . 'lib/' . $asset);
+            $lib = realpath(DOKU_INC . 'lib');
+            if (!$file || !$lib || strpos($file, $lib . DIRECTORY_SEPARATOR) !== 0) return [0, 0];
+        } elseif (!is_string($media_id) || $media_id === '') {
+            return [0, 0];
+        }
+
+        $width = is_scalar($params['w'] ?? null) ? (int) $params['w'] : 0;
+        $height = is_scalar($params['h'] ?? null) ? (int) $params['h'] : 0;
+        if ($width > 0 && $height > 0) return [$width, $height];
+
+        if ($media_id !== null) {
+            if (preg_match('~^https?://~i', $media_id)) {
+                // Respect DokuWiki's fetch/cache policy; never bypass it on failure.
+                $cache = match ($params['cache'] ?? '') {
+                    'nocache' => 0,
+                    'recache' => $conf['cachetime'],
+                    default => -1,
+                };
+                $ext = mimetype($media_id, false)[0] ?: 'unknown';
+                $file = media_get_from_URL($media_id, $ext, $cache);
             } else {
-                $cache = -1;
-            }
-            // Get the extension of the file 
-            list($ext, $mime, $dl) = mimetype($path, false);
-            if($ext === false) {
-                $ext  = 'unknown';
-                $mime = 'application/octet-stream';
-                $dl   = true;
-            }
-            $media = media_get_from_URL($path, $ext, $cache);
-            if (!$media) {
-                // Fallback to original path (nocache)
-                $media = $path;
-            if (!file_exists($media)) return array(0,0);
+                $rev = $params['rev'] ?? '';
+                $rev = is_scalar($rev) && ctype_digit((string) $rev) ? $rev : '';
+                $file = mediaFN($media_id, $rev);
             }
         }
-        elseif (strpos($url, $pluginmedia) === 0) {
-            // dont do anything, just pass the url
-            $media = $url;
+        if (!$file || !is_file($file) || !is_readable($file)) return [0, 0];
+
+        if (!$svg) {
+            $size = @getimagesize($file);
+            return $size === false ? [0, 0] : [$size[0], $size[1]];
         }
 
-        if (empty($media)) {
-            // no media found to query
-            return array(0,0);
+        $previous = libxml_use_internal_errors(true);
+        try {
+            $xml = simplexml_load_file($file, 'SimpleXMLElement', LIBXML_NONET);
+            if ($xml === false) return [0, 0];
+            $attrs = $xml->attributes();
+            $width = preg_match('/^\s*(\d+(?:\.\d+)?)(?:px)?\s*$/', (string) $attrs->width, $match) ? (float) $match[1] : 0;
+            $height = preg_match('/^\s*(\d+(?:\.\d+)?)(?:px)?\s*$/', (string) $attrs->height, $match) ? (float) $match[1] : 0;
+            $viewbox = preg_split('/[\s,]+/', trim((string) $attrs->viewBox));
+            if (count($viewbox) === 4 && is_numeric($viewbox[2]) && is_numeric($viewbox[3])
+                && $viewbox[2] > 0 && $viewbox[3] > 0) {
+                if ($width <= 0 && $height <= 0) {
+                    $width = (float) $viewbox[2];
+                    $height = (float) $viewbox[3];
+                } elseif ($height <= 0) {
+                    $height = $width * $viewbox[3] / $viewbox[2];
+                } elseif ($width <= 0) {
+                    $width = $height * $viewbox[2] / $viewbox[3];
+                }
+            }
+            return [$width, $height];
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
         }
-
-        list($width, $height) = getimagesize($media);
-                    
-        return array($width, $height);
     }
 
     /**
@@ -1897,6 +1912,13 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 
         // Nav tabs and pills
         foreach ($html->find('.bs-wrap-nav') as $nav_wrap) {
+            $nav = $nav_wrap->find('ul', 0);
+            if (!$nav) continue;
+
+            $this_page = wl($ID);
+            $collapse = false;
+            $append_nodelink = false;
+            $nodelink_text = '';
             $nav_class = ['nav'];
             if ($nav_wrap->{'data-nav-type'}) $nav_class[] = 'nav-'.$nav_wrap->{'data-nav-type'};
             if ($nav_wrap->{'data-nav-justified'} === '1') $nav_class[] = 'nav-justified';
@@ -1906,7 +1928,6 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                 $atoggle = 'collapse';
                 $aclass = 'collapsed';
                 $ulclass = 'collapse';
-                $this_page = wl($ID);
                 $collapse = true;
             } else {
                 $aclass = '';
@@ -1920,13 +1941,12 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                 }
             }
 
-            $nav = $nav_wrap->find('ul',0);
             // Add nav classes
             $nav->class = implode(' ', $nav_class);
 
             // prepare dropdown menus link
             $toggle  = '<a class="dropdown-toggle '.$aclass.'" data-toggle="'.$atoggle.'"';
-            $toggle .= 'role="button" aria-haspopup="true" aria-expanded="false">';
+            $toggle .= ' role="button" aria-haspopup="true" aria-expanded="false">';
 
             // Find any icon links
             foreach ($nav->find('li .dw-icons') as $icon) {
@@ -1934,14 +1954,14 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                 // $icon = $elm->prev_sibling();
                 $next = $icon->next_sibling();
                 $parent = $icon->parent();
-                switch ($next->tag) {
+                switch ($next ? $next->tag : null) {
                     case 'a':
                         $next->innertext = '<span>'.$icon->outertext.'&nbsp;'.$next->innertext.'</span>';
                         $icon->outertext = '';
                         break;
                     
                     default:
-                    if ($parent->class == 'li'){
+                    if ($parent && $parent->class == 'li'){
                         $parent->innertext = '<span>'.$parent->innertext.'</span>';
                     }
                         break;
@@ -1960,25 +1980,32 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             // Unwrap node elements. Reverse through array is important as we modify the structure of nested elements!
             $dropdowns = array_reverse($nav->find('div+ul'));
             foreach ($dropdowns as $idx => $elm) {
-                if (strpos($elm->class, $ulclass) !== false) continue;
-                if ($elm->find('a[href='.$this_page.']') && $collapse) {
+                if (strpos((string) $elm->class, $ulclass) !== false) continue;
+                $parent = $elm->parent();
+                $node = $elm->prev_sibling();
+                if (!$parent || !$node) continue;
+                $expanded = false;
+                if ($collapse) {
+                    foreach ($elm->find('a') as $child_link) {
+                        if ($child_link->href === $this_page) $expanded = true;
+                    }
+                }
+                if ($expanded) {
                     $elm->class .= ' '.$ulclass.' in';         
                 } else {
                     $elm->class .= ' '.$ulclass;
                 }
-                $parent = $elm->parent();
                 $parent->class .= ' dropdown';
 
-                $node = $elm->prev_sibling();
                 $link = $node->children(0);
                 
-                switch ($link->tag) {
+                switch ($link ? $link->tag : null) {
                     case 'a':
 
                         //we have a link, likely from ns pages plugin
                         $node->outertext = $toggle.$link->innertext.'</a>';
                         // Check if link is of current page (not included in prev check)
-                        if ($link->href == $this_page) $elm->class .= ' in'; 
+                        if ($collapse && $link->href == $this_page) $elm->class .= ' in';
 
                         if ($append_nodelink) {
                             if ($nodelink_text){
@@ -2116,20 +2143,23 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             case 'native':
                 foreach ($html->find('img.media, img.mediacenter, img.medialeft, img.mediaright, object.diagrams-svg') as $elm) {
                     $elm->{'loading'} = "lazy";
-                    $tagwidth = intval($elm->width);
-                    $tagheight = intval($elm->height);
+                    $tagwidth = max(0, intval($elm->width));
+                    $tagheight = max(0, intval($elm->height));
+                    $width = 0;
+                    $height = 0;
                     $is_img = (($elm->tag === 'img') ? true : false);
                     if (!$tagwidth || !$tagheight) {
                         // analyse the image/svg
                         $src = ($is_img ? $elm->src : $elm->data);
-                        $src = str_replace('amp;', '', $src);
                         list($width, $height) = ($is_img ? $this->getIntrinsicImageSize($src) : $this->getIntrinsicSVGSize($src));
                     }
                     // ensure we have width and height;
                     if ($width>0 && $height>0) {
                         $ar = $height/$width;
-                        if ($tagwidth) {
-                            $elm->height = $tagwidth*$ar;
+                        if ($tagwidth && !$tagheight) {
+                            $elm->height = $tagwidth * $ar;
+                        } elseif ($tagheight && !$tagwidth) {
+                            $elm->width = $tagheight / $ar;
                         } else {
                             $elm->width = $width;
                             $elm->height = $height;

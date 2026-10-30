@@ -902,6 +902,13 @@ body.yeti #dw__user_menu dl {
 
 /* SVG icon for DokuWiki */
 
+/* Mort's generic SVG height overrides Iconify's width/height attributes.
+   Auto sizing uses those intrinsic dimensions, including explicit icon sizes. */
+svg.iconify {
+  width: auto;
+  height: auto;
+}
+
 svg.icon {
   fill: currentColor;
   width: 1em;
