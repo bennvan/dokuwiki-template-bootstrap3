@@ -232,7 +232,7 @@ header('X-UA-Compatible: IE=edge,chrome=1');
 
 </div>
 
-<footer id="dw__footer" class="dw-container pt-5 dokuwiki container<?php echo ($TPL->getConf('fluidContainer')) ? '-fluid' : '' ?>">
+<footer id="dw__footer" class="dw-container dokuwiki container<?php echo ($TPL->getConf('fluidContainer')) ? '-fluid' : '' ?>">
         <?php
             // Footer hook
             tpl_includeFile('footer.html');

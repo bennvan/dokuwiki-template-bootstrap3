@@ -60,7 +60,6 @@ $wiki_home_link = ($TPL->getConf('homePageURL') ? $TPL->getConf('homePageURL') :
     </div>
 
     <div class="footer-license row">
-        <hr/>
         <div id="dw__license" class="col-sm-6">
             <?php if ($license_is_enabled): ?>
             <p>
