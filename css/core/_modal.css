@@ -16,6 +16,19 @@
     z-index: 1040;
 }
 
+/* Bootstrap's adjacent-button margin otherwise offsets the second button
+   against jQuery UI's footer margins. Use one spacing rule for the row. */
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5em;
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button {
+    margin: 0;
+}
+
 
 /* link wizard (opens from the link button in the edit toolbar)
 ********************************************************************/

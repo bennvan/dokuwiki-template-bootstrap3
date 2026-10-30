@@ -377,13 +377,22 @@
 /*____________ file panel ____________*/
 
 #mediamanager__page .file ul.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
     text-align: center;
     margin: 0 0 5px;
     padding: 0;
     list-style: none;
 }
 #mediamanager__page .file ul.actions li {
-    display: inline;
+    display: block;
+    margin: 0;
+}
+
+#mediamanager__page .file ul.actions form {
     margin: 0;
 }
 
