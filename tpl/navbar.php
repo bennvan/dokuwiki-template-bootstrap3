@@ -34,13 +34,11 @@ $home_link        = ($TPL->getConf('homePageURL') ? $TPL->getConf('homePageURL')
             <?php
 
                 // get logo either out of the template images folder or data/media folder
-                $logo_size = [];
-                $logo      = tpl_getMediaFile([':wiki:logo.png', ':logo.png', 'images/logo.png'], false, $logo_size);
+                $logo_size = null; // SVG dimensions are controlled by the navbar CSS.
+                $logo      = tpl_getMediaFile([':wiki:logo.svg', ':logo.svg'], false, $logo_size, false);
+                if (!$logo) $logo = tpl_getMediaFile([':wiki:logo.png', ':logo.png', 'images/logo.png']);
                 $title     = $conf['title'];
                 $tagline   = (($conf['tagline']) ? '<div id="dw__tagline">' . $conf['tagline'] . '</div>' : '');
-
-                $logo_height   = $logo_size[1];
-                $nabvar_height = $TPL->getNavbarHeight();
 
                 echo '<a class="navbar-brand d-flex align-items-center" href="' . $home_link . '" accesskey="h" title="' . $title . '">';
                 echo '<img id="dw__logo" class="pull-left h-100 mr-4" alt="' . $title . '" src="' . $logo . '" />';
