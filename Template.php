@@ -11,6 +11,7 @@ namespace dokuwiki\template\bootstrap3;
  */
 
 use dokuwiki\Extension\Event;
+use dokuwiki\File\PageResolver;
 
 class Template
 {
@@ -1200,11 +1201,8 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             echo '</li>';
         }
 
-        // print current page, skipping start page, skipping for namespace index
-        $exists = false;
-        resolve_pageid('', $page, $exists);
-
-        if (isset($page) && $page == $part . $parts[$i]) {
+        // Do not repeat a namespace start page already linked above.
+        if ($part !== '' && (new PageResolver(''))->resolveId($part) === $ID) {
             echo '</ol>';
             return true;
         }
@@ -1250,6 +1248,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             $ns_separator = sprintf(' %s ', $this->getConf('browserTitleCharSepNS'));
 
             if (useHeading('navigation')) {
+                $resolver = new PageResolver($ID);
                 if (count($ns_parts) > 1) {
                     foreach ($ns_parts as $ns_part) {
                         $ns_page .= "$ns_part:";
@@ -1259,12 +1258,10 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                     $ns_pages = array_unique($ns_pages);
 
                     foreach ($ns_pages as $ns_page) {
-                        $exists = false;
-                        resolve_pageid(getNS($ns_page), $ns_page, $exists);
+                        $ns_page = $resolver->resolveId($ns_page);
+                        $exists = page_exists($ns_page);
 
-                        $ns_page_title_heading = hsc(p_get_first_heading($ns_page));
-                        $ns_page_title_page    = noNSorNS($ns_page);
-                        $ns_page_title         = ($exists) ? $ns_page_title_heading : null;
+                        $ns_page_title = $exists ? hsc(p_get_first_heading($ns_page) ?? '') : null;
 
                         if ($ns_page_title !== $conf['start']) {
                             $ns_titles[] = $ns_page_title;
@@ -1272,10 +1269,11 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                     }
                 }
 
-                resolve_pageid(getNS($ID), $ID, $exists);
+                $page_id = $resolver->resolveId($ID);
+                $exists = page_exists($page_id);
 
                 if ($exists) {
-                    $ns_titles[] = tpl_pagetitle($ID, true);
+                    $ns_titles[] = tpl_pagetitle($page_id, true);
                 } else {
                     $ns_titles[] = noNS($ID);
                 }

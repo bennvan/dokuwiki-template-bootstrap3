@@ -14,8 +14,9 @@ if ( $TPL->getConf('showCookieLawBanner') && !get_doku_pref('cookieNoticeAccepte
 $cookie_policy_page_id = $TPL->getConf('cookieLawPolicyPage');
 $cookie_banner_page_id = $TPL->getConf('cookieLawBannerPage');
 
-$cookie_policy_page_exists = false;
-resolve_pageid('', $cookie_policy_page_id, $cookie_policy_page_exists);
+// Keep policy page IDs relative to the wiki root, regardless of the current page.
+$cookie_policy_page_id = (new \dokuwiki\File\PageResolver(''))->resolveId($cookie_policy_page_id);
+$cookie_policy_page_exists = page_exists($cookie_policy_page_id);
 
 ?>
 <!-- cookie-law -->
