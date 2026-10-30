@@ -648,6 +648,8 @@ var dw_template = {
         // Media Manager (pop-up)
         if ($media_popup.length || $media_manager.length) {
 
+            dw_template.mediaTree();
+
             jQuery('.qq-upload-button').addClass('btn btn-default mr-2');
             jQuery('.qq-upload-action').addClass('btn btn-success mr-2');
 
@@ -707,6 +709,48 @@ var dw_template = {
 
         }
 
+    },
+
+    mediaTree: function () {
+        var $tree = jQuery('#media__tree');
+        if (!$tree.length) return;
+
+        $tree.addClass('bs-media-tree');
+        $tree.find('li.media').each(function () {
+            var $item = jQuery(this),
+                $image = $item.children('img').first(),
+                $link = $item.children('div.li').children('a.idx_dir'),
+                $toggle = $item.children('.media-tree-toggle');
+
+            if (!$image.length || !$link.length) return;
+
+            if (!$toggle.length) {
+                $toggle = jQuery('<button type="button" class="media-tree-toggle"/>')
+                    .append('<span class="iconify media-folder-closed" data-icon="mdi:folder" aria-hidden="true"></span>')
+                    .append('<span class="iconify media-folder-open" data-icon="mdi:folder-open" aria-hidden="true"></span>')
+                    .insertBefore($image);
+            }
+
+            $toggle.attr({
+                'aria-label': $link.text(),
+                'aria-expanded': $item.hasClass('open') ? 'true' : 'false'
+            });
+            $link.attr('title', $link.text());
+            if ($link.hasClass('selected')) {
+                $link.attr('aria-current', 'true');
+            } else {
+                $link.removeAttr('aria-current');
+            }
+        });
+
+        // Keep core's delegated image handler for AJAX loading and caching.
+        // A real button also provides keyboard activation for folder expansion.
+        $tree.off('click.bsMediaTree', '.media-tree-toggle')
+            .on('click.bsMediaTree', '.media-tree-toggle', function () {
+                var $toggle = jQuery(this), $item = $toggle.parent();
+                $item.children('img').first().trigger('click');
+                $toggle.attr('aria-expanded', $item.hasClass('open') ? 'true' : 'false');
+            });
     },
 
     detail: function () {

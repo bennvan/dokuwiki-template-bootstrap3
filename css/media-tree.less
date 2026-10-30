@@ -1,0 +1,134 @@
+/* Media namespace navigation, shared by the full manager and editor popup. */
+#media__tree.bs-media-tree {
+  ul.idx {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul.idx ul.idx {
+    margin: 0;
+    margin-inline-start: 15px;
+    padding-inline-start: 8px;
+    border-inline-start: 1px solid @ini_border;
+  }
+
+  li.media {
+    position: relative;
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    align-items: start;
+    margin: 2px 0;
+    padding: 0;
+    list-style: none;
+
+    // Core still uses this image as its expansion target.
+    > img {
+      display: none;
+    }
+
+    > ul {
+      grid-column-start: 1;
+      grid-column-end: -1;
+
+      // Core inserts a spinner after a slow response. Overlay the folder icon
+      // instead of adding a temporary row that shifts the rest of the tree.
+      > li[aria-busy="true"] {
+        position: absolute;
+        top: 7px;
+        inset-inline-start: 7px;
+        margin: 0;
+        padding: 0;
+        background: @ini_background;
+        pointer-events: none;
+
+        > img {
+          display: block;
+          float: none;
+          width: 16px;
+          height: 16px;
+          padding: 0;
+        }
+      }
+    }
+
+    > div.li {
+      // AJAX rows are measured for slideDown before their buttons are added.
+      // Reserve the label column immediately to avoid a temporary tall row.
+      grid-column: 2;
+      grid-row: 1;
+      display: block;
+      min-width: 0;
+    }
+
+    > div.li > a.idx_dir {
+      display: block;
+      min-height: 30px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      color: inherit;
+      line-height: 20px;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+
+      &:hover, &:focus {
+        background-color: @ini_background_alt;
+      }
+
+      &.selected {
+        background-color: @ini_background_alt;
+        box-shadow: inset 3px 0 @ini_link;
+        color: @ini_link;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .media-tree-toggle {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: @ini_link;
+    cursor: pointer;
+
+    &:hover, &:focus {
+      background-color: @ini_background_alt;
+    }
+
+    .iconify {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  li.closed > .media-tree-toggle .media-folder-open,
+  li.open > .media-tree-toggle .media-folder-closed {
+    display: none;
+  }
+}
+
+[dir=rtl] #media__tree.bs-media-tree {
+  ul.idx {
+    margin-right: 0;
+    padding-right: 0;
+  }
+
+  ul.idx ul.idx {
+    margin-right: 15px;
+    padding-right: 8px;
+    margin-left: 0;
+  }
+
+  li.media > div.li > a.idx_dir.selected {
+    box-shadow: inset -3px 0 @ini_link;
+  }
+}
