@@ -46,7 +46,7 @@ class EventHandlers
             'PLUGIN_TPLINC_LOCATIONS_SET'   => ['BEFORE',['tplIncPlugin']],
             'SEARCH_QUERY_FULLPAGE'         => ['BEFORE',['search']],
             'SEARCH_QUERY_PAGELOOKUP'       => ['BEFORE',['search']],
-            'SEARCH_RESULT_FULLPAGE'        => ['BEFORE',['search']],
+            'SEARCH_RESULT_FULLPAGE'        => ['AFTER',['search']],
             'SEARCH_RESULT_PAGELOOKUP'      => ['BEFORE',['search']],
             'TPL_CONTENT_DISPLAY'           => ['BEFORE',['tplContent']],
             'TPL_METAHEADER_OUTPUT'         => ['BEFORE',['tplMetaHeaderOutput']],
@@ -228,7 +228,7 @@ class EventHandlers
             array_unshift($event->data['listItemContent'], iconify('mdi:file-document-outline', ['title' => hsc($event->data['page'])]) . ' ');
         }
 
-        if ($event->name == 'SEARCH_RESULT_FULLPAGE') {
+        if ($event->name == 'SEARCH_RESULT_FULLPAGE' && isset($event->data['resultBody']['meta'])) {
             $event->data['resultBody']['meta'] = str_replace(
                 ['<span class="lastmod">', '<span class="hits">'],
                 ['<span class="lastmod">' . iconify('mdi:calendar') . ' ', '<span class="hits">' . iconify('mdi:poll') . ' '],
