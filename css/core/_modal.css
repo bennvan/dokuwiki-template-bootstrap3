@@ -6,6 +6,16 @@
     font-size: 100%;
 }
 
+/* Keep jQuery UI modals above the navbar, TOC and page tools. The dialog
+   widget manages the relative ordering of its overlay and stacked dialogs. */
+.ui-dialog {
+    z-index: 1050;
+}
+
+.ui-widget-overlay {
+    z-index: 1040;
+}
+
 
 /* link wizard (opens from the link button in the edit toolbar)
 ********************************************************************/

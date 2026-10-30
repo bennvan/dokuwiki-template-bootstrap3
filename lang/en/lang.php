@@ -47,3 +47,23 @@ $lang['config_google_analytics'] = 'Google Analytics';
 $lang['config_browser_title']    = 'Browser Title';
 $lang['config_page']             = 'Page';
 
+$lang['js']['mediaActions'] = 'Actions';
+$lang['js']['mediaActionsIn'] = 'Actions in';
+$lang['js']['mediaRoot'] = '[root]';
+$lang['js']['mediaCreateNamespace'] = 'Create namespace';
+$lang['js']['mediaCreateNamespaceIn'] = 'Create a namespace in';
+$lang['js']['mediaRemoveNamespace'] = 'Remove namespace';
+$lang['js']['mediaRemoveNamespaceConfirm'] = 'Remove this empty namespace?';
+$lang['js']['mediaRemove'] = 'Remove';
+$lang['js']['mediaNamespaceName'] = 'Namespace name';
+$lang['js']['mediaFileExtension'] = 'File extension';
+$lang['js']['mediaCreate'] = 'Create';
+$lang['js']['mediaLoading'] = 'Please wait…';
+$lang['js']['mediaError_denied'] = 'You do not have permission to create media in this namespace.';
+$lang['js']['mediaError_removeDenied'] = 'You do not have permission to remove this namespace.';
+$lang['js']['mediaError_notEmpty'] = 'Only empty namespaces can be removed. This namespace contains files or sub-namespaces.';
+$lang['js']['mediaError_invalid'] = 'Enter a folder name without colons or slashes.';
+$lang['js']['mediaError_exists'] = 'A file or namespace with that name already exists.';
+$lang['js']['mediaError_token'] = 'Your session has changed. Reload the page and try again.';
+$lang['js']['mediaError_failed'] = 'The action could not be completed. Please try again.';
+

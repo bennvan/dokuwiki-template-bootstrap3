@@ -8,6 +8,39 @@
 
 /* Move Plugin */
 
+.bs-move-page-dialog {
+    form { margin: .75em 0; }
+    label { display: block; }
+    .form-control { margin-bottom: 1em; }
+    .bs-move-media-option {
+        font-weight: normal;
+        padding-left: 1.5em;
+        input { float: left; margin-left: -1.5em; }
+    }
+}
+
+.bs-move-media-dialog {
+    form { margin: .75em 0; }
+    label { display: block; }
+    .move-error:empty { display: none; }
+
+    .bs-move-media-fields {
+        display: flex;
+        gap: .5em;
+        margin-bottom: .5em;
+
+        input[name="move-new-filename"] {
+            flex: 1;
+            min-width: 0;
+        }
+
+        input[name="move-file-ext"] {
+            flex: 0 0 5em;
+            width: 5em;
+        }
+    }
+}
+
 #plugin_move__progress li {
     min-height: 0 !important;
     margin-top: 10px;

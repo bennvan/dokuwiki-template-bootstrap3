@@ -246,6 +246,12 @@ var dw_template = {
         jQuery.ui.dialog.prototype.options.classes["ui-dialog-content"] = "modal-body";
         jQuery.ui.dialog.prototype.options.classes["ui-dialog-buttonpane"] = "modal-footer";
 
+        // Style the diagrams plugin's plain form when its dialog is created.
+        jQuery(document).on('dialogcreate.bootstrap3diagrams', '.diagrams-create-dialog', function () {
+            jQuery(this).find('input.edit').addClass('form-control');
+            jQuery(this).find('button[type="submit"]').addClass('btn btn-primary');
+        });
+
         // menu
         jQuery.ui.menu.prototype.options.classes["ui-menu"] = "list-group";
         jQuery.ui.menu.prototype.options.classes["ui-menu-icons"] = "";
@@ -649,6 +655,7 @@ var dw_template = {
         if ($media_popup.length || $media_manager.length) {
 
             dw_template.mediaTree();
+            dw_template.mediaActions();
 
             jQuery('.qq-upload-button').addClass('btn btn-default mr-2');
             jQuery('.qq-upload-action').addClass('btn btn-success mr-2');
@@ -1233,6 +1240,8 @@ var dw_template = {
         /* DOKUWIKI:include js/plugins/notfound.js */
     },
 };
+
+/* DOKUWIKI:include js/media-actions.js */
 
 dw_template.toolbarIcons();
 dw_template.jQueryUI();
