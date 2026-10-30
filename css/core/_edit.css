@@ -124,6 +124,9 @@ div.picker button.toolbutton {
 .dokuwiki .secedit {
     float: right;
     margin-top: -1.4em;
+    /* Keep overlapping edit buttons above Mort's positioned code/file blocks. */
+    position: relative;
+    z-index: 1;
 }
 [dir=rtl] .dokuwiki .secedit {
     float: left;
