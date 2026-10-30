@@ -467,7 +467,10 @@ class Template
             // If no logo, lets get the user name and make one
             if (!$logo) {
                 global $auth;
-                $user_data = $auth->getUserData($username);
+                $user_data = $auth ? $auth->getUserData($username) : false;
+                if (empty($user_data['name'])) {
+                    return tpl_getMediaFile(['images/avatar.png'], false, $logo_size);
+                }
                 $names = explode(" ", $user_data['name']);
                 $inits = "";
                 foreach($names as $name){
@@ -646,7 +649,7 @@ class Template
     public function getContribPopover($username, $avatar, $name, $email) {
         global $ID;
 
-        $out .= "<div class='container-fluid'>";
+        $out = "<div class='container-fluid'>";
         $out .=    "<p class='text-center'>";
         $out .=        "<img alt='$username' src='$avatar' class='img-circle' width='96' height='96'>";
         $out .=    "</p>";
@@ -687,7 +690,19 @@ class Template
         }
 
         $authors = $this->fetchAuthorsFromMetadata();
+        $author_emails = [];
+        foreach ($authors as $user => $fullname) {
+            $user_data = $auth ? $auth->getUserData($user) : false;
+            $email = $user_data['mail'] ?? '';
+            if (!$email) {
+                unset($authors[$user]);
+                continue;
+            }
+            $author_emails[$user] = $email;
+        }
+
         $count = count($authors);
+        if (!$count) return false;
 
         echo '<div class="contributors-heading">Contributors:</div>';
         echo '<div class="contributors-list">';
@@ -695,9 +710,7 @@ class Template
         $idx = 1;
         foreach ($authors as $user => $fullname) {
             if ($idx > $maxnum) break;
-            $user_data = $auth->getUserData($user);
-            $email = $user_data['mail'];
-            if (!$email) continue;
+            $email = $author_emails[$user];
             $avatar = $this->getAvatar($user, $email);
 
             echo '<a tabindex="0" role="button" data-toggle="popover" data-trigger="focus" data-placement="top" title="<b>'.$user.'</b>" data-content="'.$this->getContribPopover($user,$avatar,$fullname,$email).'" class="rounded-circle contrib-overlap-avatar" >';
@@ -725,9 +738,7 @@ class Template
             // modal body list
             echo '<ul class="list-group">';
             foreach ($authors as $user => $fullname) {
-                $user_data = $auth->getUserData($user);
-                $email = $user_data['mail'];
-                if (!$email) continue;
+                $email = $author_emails[$user];
                 $avatar = $this->getAvatar($user, $email);
                 echo '<li class="list-group-item">';
                 $this->getContribModalItem($user, $avatar, $fullname, $email);
@@ -810,9 +821,9 @@ class Template
 
                     if ($this->getConf('useAvatar')) {
                         global $auth;
-                        $user_data = $auth->getUserData($INFO['editor']);
+                        $user_data = $auth ? $auth->getUserData($INFO['editor']) : false;
 
-                        $avatar_img = $this->getAvatar($INFO['editor'], $user_data['mail'], 16);
+                        $avatar_img = $this->getAvatar($INFO['editor'], $user_data['mail'] ?? '', 16);
                         $user_img   = '<img src="' . $avatar_img . '" alt="" width="16" height="16" class="img-rounded" /> ';
                         $user       = str_replace(['iw_user', 'interwiki'], '', $user);
                         $user       = $user_img . "<bdi>$user<bdi>";
