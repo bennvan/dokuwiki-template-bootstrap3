@@ -69,12 +69,32 @@ div.picker button.toolbutton {
 /* size and wrap controls */
 #size__ctl {
     float: right;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
 }
 [dir=rtl] #size__ctl {
     float: left;
 }
 #size__ctl img {
     cursor: pointer;
+}
+#size__ctl > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 38px;
+    padding: 8px 10px;
+    margin: 0;
+    line-height: 20px;
+}
+#size__ctl > button img {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: 0;
 }
 
 /* edit buttons */

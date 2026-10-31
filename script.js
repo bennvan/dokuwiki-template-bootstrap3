@@ -1242,6 +1242,7 @@ var dw_template = {
 };
 
 /* DOKUWIKI:include js/media-actions.js */
+/* DOKUWIKI:include js/editor-controls.js */
 
 dw_template.toolbarIcons();
 dw_template.jQueryUI();
