@@ -1060,7 +1060,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
      */
     public function getUserHomePageLink()
     {
-        return wl($this->getUserHomePageID().':');
+        return wl((new PageResolver(''))->resolveId($this->getUserHomePageID() . ':'));
     }
 
     /**
@@ -1070,7 +1070,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
      */
     public function getUserPublicPageLink()
     {
-        return wl($this->getUserHomePageID().':public:');
+        return wl((new PageResolver(''))->resolveId($this->getUserHomePageID() . ':public:'));
     }
 
     /**
@@ -1080,7 +1080,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
      */
     public function getUserSharePageLink()
     {
-        return wl($this->getUserHomePageID().':share:');
+        return wl((new PageResolver(''))->resolveId($this->getUserHomePageID() . ':share:'));
     }
 
     /**
