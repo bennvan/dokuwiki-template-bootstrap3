@@ -1,0 +1,15 @@
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('source-code-pro/SourceCodeVF-Upright.ttf.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('source-code-pro/SourceCodeVF-Italic.ttf.woff2') format('woff2');
+}

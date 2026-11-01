@@ -743,7 +743,7 @@ ul.btn-group {
   }
 
   textarea.edit {
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace
+    font-family: "Source Code Pro", Consolas, Menlo, Monaco, monospace;
   }
 
   ul.idx {
@@ -846,8 +846,56 @@ ul.btn-group {
 }
 
 
+/* Use the bundled monospace font for code, including plugin-rendered blocks. */
+body code,
+body kbd,
+body pre,
+body samp,
+.dokuwiki .CodeMirror,
+.dokuwiki .CodeMirror pre,
+.dokuwiki .CodeMirror .CodeMirror-linenumber,
+.dokuwiki .CodeMirror .CodeMirror-dialog input,
+.dokuwiki .code-toolbar.copied::before,
+.dokuwiki pre.copied::before {
+  font-family: "Source Code Pro", Consolas, Menlo, Monaco, monospace;
+}
+
+.dokuwiki pre.code,
+.dokuwiki pre.file,
+.dokuwiki pre.hljs,
+.dokuwiki pre.prettyprint {
+  font-size: 1em;
+}
+
+.dokuwiki code {
+  font-size: 90%;
+}
+
+.dokuwiki pre code {
+  font-size: inherit;
+}
+
 /* AnchorJS */
-a.anchorjs-link:hover {
+a.anchorjs-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  margin-left: .125em;
+  // Lower the complete focus box to retain the heading's original icon baseline.
+  vertical-align: -.06em;
+  // AnchorJS sets padding inline; keep spacing outside the focus outline.
+  padding-left: 0 !important;
+}
+
+a.anchorjs-link::after {
+  // Centre the glyph optically within the AnchorJS font's line box.
+  transform: translateY(-.06em);
+}
+
+a.anchorjs-link:hover,
+a.anchorjs-link:focus {
   text-decoration: none;
 }
 

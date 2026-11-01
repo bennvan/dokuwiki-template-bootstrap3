@@ -2,6 +2,9 @@
 
 # Bootstrap3 template for DokuWiki
 
+The bundled **Vanilla Pro** theme is selected by default. Choose it under
+**Admin → Configuration Settings → Bootstrap3 → Bootstrap theme**.
+
 ## Features
 
   * HTML5 and CSS3
@@ -18,6 +21,22 @@
   * Cookie Law Banner Notice
   * Google Analytics integration
   * Avatar support for Gravatar, Libravatar and Office365
+
+## Text fonts
+
+Choose **Admin → Configuration Settings → Bootstrap3 → Text font** to select a
+font independently of the colour theme. The setting applies to page text,
+headings and navigation. Code blocks, inline code and the editor use locally
+bundled Source Code Pro independently of this setting.
+
+Choices are Inter (the default), Source Sans 3 and Ubuntu.
+Fonts are served locally, and the browser loads
+only the font faces used by the page. Font size and line spacing are unchanged.
+The new font families and their licences are bundled under `assets/fonts`.
+Sources: [Source Sans 3](https://github.com/adobe-fonts/source-sans/tree/release/WOFF2/VF),
+[Inter](https://github.com/rsms/inter/tree/master/docs/font-files) and
+[Source Code Pro](https://github.com/adobe-fonts/source-code-pro/tree/release/WOFF2/VF).
+Ubuntu reuses the font files already included with the template.
 
 ## Plugin Integration
 

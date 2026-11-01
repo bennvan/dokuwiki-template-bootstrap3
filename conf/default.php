@@ -6,8 +6,9 @@
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 
-$conf['bootstrapTheme']              = 'ammelab';
+$conf['bootstrapTheme']              = 'vanilla-pro';
 $conf['bootswatchTheme']             = 'yeti';
+$conf['textFont']                   = 'inter';
 $conf['breadcrumbHideModes']         = 'notfound login admin denied search showtag';
 $conf['browserTitle']                = '@TITLE@ | @WIKI@';
 $conf['browserTitleCharSepNS']       = '-';

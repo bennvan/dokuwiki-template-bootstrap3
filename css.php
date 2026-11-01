@@ -145,8 +145,8 @@ if ($theme_by_namespace && file_exists($themes_filename) && !$ID) {
 }
 
 switch ($bootstrap_theme) {
-    case 'ammelab':
-        $stylesheets[] = 'assets/bootstrap/ammelab/bootstrap.min.css?v=1.0.2';
+    case 'vanilla-pro':
+        $stylesheets[] = 'assets/bootstrap/vanilla-pro/bootstrap.min.css?v=1.0.2';
         break;
         
     case 'optional':
@@ -178,10 +178,34 @@ switch ($bootstrap_theme) {
         break;
 }
 
+// Keep the font independent of the colour theme. Only allow bundled stylesheets.
+$text_fonts = array(
+    'inter'         => '"Inter", "Segoe UI", Arial, sans-serif',
+    'source-sans-3' => '"Source Sans 3", "Segoe UI", Arial, sans-serif',
+    'ubuntu'        => '"Ubuntu", Tahoma, "Helvetica Neue", Helvetica, Arial, sans-serif',
+);
+$text_font = tpl_getConf('textFont');
+if (!isset($text_fonts[$text_font])) {
+    $text_font = 'inter';
+}
+$font_family = $bootstrap_theme !== 'none' ? $text_fonts[$text_font] : null;
+if ($font_family) {
+    $stylesheets[] = "assets/fonts/$text_font.fonts.css";
+}
+if ($bootstrap_theme !== 'none') {
+    $stylesheets[] = 'assets/fonts/source-code-pro.fonts.css';
+}
+
 $content = '';
 
 foreach ($stylesheets as $style) {
     $content .= "@import url($style);" . NL;
+}
+
+if ($font_family) {
+    // Avoid overriding icon fonts, monospace code and editor-specific styling.
+    $content .= 'body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .tooltip, .popover {' . NL;
+    $content .= 'font-family: ' . $font_family . ';' . NL . '}' . NL;
 }
 
 print $content;

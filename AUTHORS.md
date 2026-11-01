@@ -1,4 +1,4 @@
-# Bootstrap3 template for DokuWiki (AMMELAB)
+# Bootstrap3 template for DokuWiki (Pro)
 
 ## Author
 
