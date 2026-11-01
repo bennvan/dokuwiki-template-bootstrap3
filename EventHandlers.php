@@ -49,6 +49,7 @@ class EventHandlers
             'SEARCH_RESULT_FULLPAGE'        => ['AFTER',['search']],
             'SEARCH_RESULT_PAGELOOKUP'      => ['BEFORE',['search']],
             'TPL_CONTENT_DISPLAY'           => ['BEFORE',['tplContent']],
+            'TPL_ACT_RENDER'                => ['BEFORE', ['profileAvatar']],
             'TPL_METAHEADER_OUTPUT'         => ['BEFORE',['tplMetaHeaderOutput']],
 
         ];
@@ -59,6 +60,11 @@ class EventHandlers
                 $EVENT_HANDLER->register_hook($event, $advise, $this, $method);
             }
         }
+    }
+
+    public function profileAvatar(Event $event)
+    {
+        if ($event->data === 'profile') AvatarUpload::renderForm();
     }
 
     public function formDraftOutput(Event $event)

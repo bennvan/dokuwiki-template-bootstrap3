@@ -33,6 +33,20 @@ $lang['sharednamespace_desc']    = 'Only other logged-in users can read these pa
 $lang['readonly']                = 'Read-only mode';
 $lang['readonly_desc']           = 'Toggle read-only/edit mode';
 
+$lang['avatar_heading'] = 'Update your profile photo';
+$lang['avatar_photo'] = 'Choose a photo';
+$lang['avatar_help'] = 'Max. %s JPEG, PNG, or WebP. Images will be resized to 120x120px.';
+$lang['avatar_save'] = 'Upload photo';
+$lang['avatar_reset'] = 'Reset photo';
+$lang['avatar_reset_help'] = 'Remove your photo and restore the generated initials avatar.';
+$lang['avatar_reset_done'] = 'Your photo has been removed. The default avatar will be generated again.';
+$lang['avatar_inuse'] = 'This photo is used on wiki pages. Remove those references before resetting it.';
+$lang['avatar_invalid'] = 'Please choose a valid JPEG, PNG or WebP photo.';
+$lang['avatar_too_large'] = 'This photo is too large to upload or process. Please choose a smaller image.';
+$lang['avatar_upload_error'] = 'The photo could not be uploaded. Please choose the file again and retry.';
+$lang['avatar_failed'] = 'The avatar could not be saved. Please try again.';
+$lang['avatar_denied'] = 'You do not have permission to update this avatar.';
+
 // Configuration Manager Template Sections
 $lang['config_theme']            = 'Theme';
 $lang['config_sidebar']          = 'Sidebar';

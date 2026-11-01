@@ -22,6 +22,18 @@ The bundled **Vanilla Pro** theme is selected by default. Choose it under
   * Google Analytics integration
   * Avatar support for Gravatar, Libravatar and Office365
 
+## Profile photos
+
+The profile page includes an avatar upload form for members of `user` or `admin`
+with media upload/overwrite permission in their own public namespace. JPEG, PNG
+and WebP photos are auto-rotated, centre-cropped and resized to 120×120, then saved
+as `user:<username>:public:avatar.png`. The local-initials avatar provider uses
+this file. Uploads use DokuWiki's normal media permissions, revisions and logging;
+PHP's upload limit still applies. **Reset photo** removes the local PNG and any
+older avatar JPEG through DokuWiki's media deletion handler, restoring the
+generated initials avatar on reload. Reset requires media deletion permission.
+No core or authentication-plugin changes are needed.
+
 ## Text fonts
 
 Choose **Admin → Configuration Settings → Bootstrap3 → Text font** to select a

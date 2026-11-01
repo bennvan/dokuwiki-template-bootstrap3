@@ -496,6 +496,14 @@ class Template
                 // Try and retrieve new photo or use a fallback image.
                 $logo = tpl_getMediaFile(["$user_url.png", 'images/avatar.png'], false, $logo_size);
             }
+            // Give a replaced avatar a new URL without clearing browser caches.
+            foreach (["$user_url.png", "$user_url.jpg"] as $avatar_id) {
+                $avatar_file = mediaFN($avatar_id);
+                if (is_file($avatar_file)) {
+                    $logo .= (str_contains($logo, '?') ? '&amp;' : '?') . 'v=' . sha1_file($avatar_file);
+                    break;
+                }
+            }
             return $logo;
         }
 
