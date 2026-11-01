@@ -253,6 +253,24 @@ class EventHandlers
 
         $fixed_top_navbar = $this->template->getConf('fixedTopNavbar');
 
+        // Discover the body font before the nested theme CSS imports finish.
+        // The variable fonts include the regular and bold weights in one file.
+        if ($this->template->getConf('bootstrapTheme') !== 'none') {
+            $fonts = [
+                'inter' => 'inter/InterVariable.woff2',
+                'source-sans-3' => 'source-sans-3/SourceSans3VF-Upright.ttf.woff2',
+                'ubuntu' => 'Ubuntu_400.woff2',
+            ];
+            $font = $fonts[$this->template->getConf('textFont')] ?? $fonts['inter'];
+            $event->data['link'][] = [
+                'rel' => 'preload',
+                'href' => tpl_basedir() . 'assets/fonts/' . $font,
+                'as' => 'font',
+                'type' => 'font/woff2',
+                'crossorigin' => 'anonymous',
+            ];
+        }
+
         if ($google_analitycs = $this->template->getGoogleAnalitycs()) {
             $event->data['script'][] = [
                 'type'  => 'text/javascript',
