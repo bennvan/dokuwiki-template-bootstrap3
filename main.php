@@ -193,7 +193,7 @@ header('X-UA-Compatible: IE=edge,chrome=1');
             <?php if ($TPL->getConf('tocLayout') == 'rightsidebar'): ?>
             
                 <?php if ($toc): ?>
-                <aside id="dokuwiki__rightsidetoc" class="dw__sidebar <?php echo hsc($TPL->getConf('rightSidebarGrid')); ?> pl-3 hidden-print">
+                <aside id="dokuwiki__rightsidetoc" class="dw__sidebar <?php echo hsc($TPL->getConf('rightSidebarGrid')); ?> pl-1 hidden-print">
                     <div class="dw-sidebar-content">
                         <div class="dw-sidebar-title hidden-lg hidden-md hidden-sm">
                         </div>
