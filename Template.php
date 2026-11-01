@@ -1684,20 +1684,23 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 
         parse_str($parts['query'] ?? '', $params);
         $path = $parts['path'] ?? '';
+        // With canonical URLs enabled DOKU_BASE includes the origin, while
+        // parse_url() above gives us only the path to compare against.
+        $base_path = parse_url(DOKU_BASE, PHP_URL_PATH) ?: '/';
         $media_id = null;
         $file = null;
-        foreach ([DOKU_BASE . '_media/', DOKU_BASE . 'lib/exe/fetch.php/'] as $prefix) {
+        foreach ([$base_path . '_media/', $base_path . 'lib/exe/fetch.php/'] as $prefix) {
             if (strpos($path, $prefix) === 0) {
                 $media_id = rawurldecode(substr($path, strlen($prefix)));
                 break;
             }
         }
-        if ($path === DOKU_BASE . 'lib/exe/fetch.php') {
+        if ($path === $base_path . 'lib/exe/fetch.php') {
             $media_id = $params['media'] ?? null;
         }
         if ($media_id === null) {
             // Plugin/template assets are filesystem paths, not HTTP requests.
-            $prefix = DOKU_BASE . 'lib/';
+            $prefix = $base_path . 'lib/';
             if (strpos($path, $prefix) !== 0) return [0, 0];
             $asset = rawurldecode(substr($path, strlen($prefix)));
             if (str_contains($asset, "\0")) return [0, 0];
