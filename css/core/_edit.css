@@ -54,6 +54,12 @@ div.picker button.toolbutton {
 
 /*____________ edit textarea ____________*/
 
+/* CodeMirror's overflow container must sit below the floated draft status. */
+#dw__editform {
+    display: block;
+    clear: both;
+}
+
 .dokuwiki textarea.edit {
     width: 100%;
     margin-bottom: .5em;
@@ -95,6 +101,51 @@ div.picker button.toolbutton {
     width: 20px;
     height: 20px;
     margin: 0;
+}
+
+/* On phones, open choices inside the menu instead of beside the viewport. */
+.cm-settings-menu .bootstrap3-cm-close {
+    display: none;
+}
+.cm-settings-menu.ui-menu .ui-menu {
+    /* Restore normal submenu positioning when resizing out of mobile view. */
+    position: absolute !important;
+}
+@media (max-width: 767px) {
+    .cm-settings-menu.ui-menu {
+        position: fixed;
+        left: 8px !important;
+        right: 8px;
+        top: auto !important;
+        bottom: 8px;
+        max-height: calc(100dvh - 16px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    .cm-settings-menu .bootstrap3-cm-close {
+        display: block;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: @ini_background;
+        border-bottom: 1px solid @ini_border;
+        font-weight: bold;
+    }
+    .cm-settings-menu .bootstrap3-cm-close > div {
+        padding: 10px;
+    }
+    .cm-settings-menu .bootstrap3-cm-close span {
+        float: right;
+        margin-left: 1em;
+    }
+    .cm-settings-menu.ui-menu .ui-menu {
+        /* jQuery UI writes inline positioning when opening a submenu. */
+        position: static !important;
+        width: auto !important;
+        max-height: 40vh;
+        margin: 4px 0 8px;
+    }
 }
 
 /* edit buttons */

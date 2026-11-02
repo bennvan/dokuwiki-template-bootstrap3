@@ -31,6 +31,42 @@
             var label = $(this).find('img').attr('alt');
             if (label) $(this).attr({'title': label, 'aria-label': label});
         });
+        // The mobile settings panel can cover its trigger. Give it an explicit
+        // close action, using the plugin's existing jQuery UI menu semantics.
+        $('.cm-settings-menu').each(function () {
+            var $menu = $(this);
+            if ($menu.children('.bootstrap3-cm-close').length) return;
+            function closeSettings(returnFocus) {
+                $menu.menu('collapseAll', null, true).hide();
+                if (returnFocus) $controls.find('.cm-settings-button').closest('button').trigger('focus');
+            }
+            $('<li class="bootstrap3-cm-close"><div>Close settings <span aria-hidden="true">×</span></div></li>')
+                .prependTo($menu)
+                .on('click.bootstrap3Editor', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    closeSettings(true);
+                });
+            $menu.on('menuselect.bootstrap3Editor', function (event, ui) {
+                if (ui.item.hasClass('bootstrap3-cm-close')) ui.item.trigger('click');
+            });
+            // CodeMirror stops bubbling pointer events. Capture outside taps so
+            // tapping the textbox dismisses the panel without stealing focus.
+            document.addEventListener('pointerdown', function (event) {
+                if (!$menu.is(':visible') || $menu[0].contains(event.target)) return;
+                var $target = $(event.target);
+                if ($target.closest('.cm-settings-button').length ||
+                    $target.closest('button').find('.cm-settings-button').length) return;
+                closeSettings(false);
+            }, true);
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && $menu.is(':visible')) {
+                    event.preventDefault();
+                    closeSettings(true);
+                }
+            }, true);
+            $menu.menu('refresh');
+        });
         syncWrap();
     }
 
