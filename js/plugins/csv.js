@@ -13,11 +13,17 @@ var $csv = jQuery('table tbody tr.row0 th.col0');
 if ($csv.length) {
 
     $csv.each(function () {
-        var $table = jQuery(this).parents('table');
-        if ($table.find('tr.row1 th').length == 0) {
-            $table.prepend('<thead/>');
-            var $header = $table.find('tr.row0');
-            $table.find('thead').append($header);
+        var $table = jQuery(this).closest('table');
+        var $header = $table.children('tbody').children('tr.row0').first();
+        // Only promote a complete legacy header row. A rowspan cannot cross
+        // from thead into tbody, and mixed rows may contain side labels.
+        if ($table.children('thead').length ||
+            $header.children('td').length ||
+            $header.children('th').filter(function () { return this.rowSpan !== 1; }).length) {
+            return;
+        }
+        if ($table.children('tbody').children('tr.row1').children('th').length == 0) {
+            jQuery('<thead/>').prependTo($table).append($header);
         }
     });
 

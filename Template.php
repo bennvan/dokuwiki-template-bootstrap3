@@ -2136,7 +2136,20 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         }
 
         foreach ($html->find('table.inline,table.import_failures,table.exttable') as $elm) {
-            $elm->class .= " $table_classes";
+            $classes = preg_split('/\s+/', trim($elm->class . " $table_classes"));
+            // Respect explicit DataTables wrapper styling before JS runs,
+            // including plain tables which never initialize DataTables.
+            for ($parent = $elm->parent(); $parent; $parent = $parent->parent()) {
+                if (!in_array('dt-wrapper', explode(' ', (string) $parent->class), true)) continue;
+                foreach (['striped' => 'striped', 'border' => 'bordered'] as $option => $class) {
+                    $value = $parent->{'data-' . $option};
+                    if ($value === null || $value === '') continue;
+                    $classes = array_diff($classes, ['table-' . $class]);
+                    if ($value !== 'false') $classes[] = 'table-' . $class;
+                }
+                break;
+            }
+            $elm->class = implode(' ', array_unique($classes));
         }
 
         foreach ($html->find('div.table') as $elm) {
