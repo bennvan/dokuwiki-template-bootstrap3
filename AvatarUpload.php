@@ -38,7 +38,7 @@ class AvatarUpload
         ]);
         $form->addFieldsetOpen()->attr('aria-labelledby', 'update-profile-photo');
         if (is_file(mediaFN(self::mediaId()))) {
-            $url = ml(self::mediaId(), ['v' => sha1_file(mediaFN(self::mediaId()))], true, '&');
+            $url = ml(self::mediaId(), ['w' => 240, 'h' => 240, 'v' => sha1_file(mediaFN(self::mediaId()))], true, '&');
             $form->addHTML('<p><img class="img-circle" width="120" height="120" alt="" src="' . hsc($url) . '" /></p>');
         }
         $limit = min(php_to_byte(ini_get('upload_max_filesize')), php_to_byte(ini_get('post_max_size')) ?: PHP_INT_MAX);
@@ -83,12 +83,12 @@ class AvatarUpload
         }
         try {
             @Slika::run($source, ['imconvert' => $conf['im_convert']])
-                ->autorotate()->crop(120, 120)->save($target, 'png');
+                ->autorotate()->crop(400, 400)->save($target, 'png');
         } catch (\Exception $e) {
             throw new \RuntimeException(tpl_getLang('avatar_invalid'));
         }
         $result = @getimagesize($target);
-        if (!$result || $result[0] !== 120 || $result[1] !== 120 || $result[2] !== IMAGETYPE_PNG) {
+        if (!$result || $result[0] !== 400 || $result[1] !== 400 || $result[2] !== IMAGETYPE_PNG) {
             throw new \RuntimeException(tpl_getLang('avatar_failed'));
         }
     }

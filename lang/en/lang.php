@@ -35,7 +35,7 @@ $lang['readonly_desc']           = 'Toggle read-only/edit mode';
 
 $lang['avatar_heading'] = 'Update your profile photo';
 $lang['avatar_photo'] = 'Choose a photo';
-$lang['avatar_help'] = 'Max. %s JPEG, PNG, or WebP. Images will be resized to 120x120px.';
+$lang['avatar_help'] = 'Max. %s JPEG, PNG, or WebP. Images will be resized to 400x400px.';
 $lang['avatar_save'] = 'Upload photo';
 $lang['avatar_reset'] = 'Reset photo';
 $lang['avatar_reset_help'] = 'Remove your photo and restore the generated initials avatar.';

@@ -496,11 +496,12 @@ class Template
                 // Try and retrieve new photo or use a fallback image.
                 $logo = tpl_getMediaFile(["$user_url.png", 'images/avatar.png'], false, $logo_size);
             }
-            // Give a replaced avatar a new URL without clearing browser caches.
+            // Let DokuWiki cache the requested thumbnail; replacing the photo
+            // also changes its URL without clearing browser caches.
             foreach (["$user_url.png", "$user_url.jpg"] as $avatar_id) {
                 $avatar_file = mediaFN($avatar_id);
                 if (is_file($avatar_file)) {
-                    $logo .= (str_contains($logo, '?') ? '&amp;' : '?') . 'v=' . sha1_file($avatar_file);
+                    $logo = ml($avatar_id, ['w' => $size, 'h' => $size, 'v' => sha1_file($avatar_file)]);
                     break;
                 }
             }
@@ -734,8 +735,9 @@ class Template
             if ($idx > $maxnum) break;
             $email = $author_emails[$user];
             $avatar = $this->getAvatar($user, $email);
+            $popover_avatar = $this->getAvatar($user, $email, 192);
 
-            echo '<a tabindex="0" role="button" data-toggle="popover" data-trigger="focus" data-placement="top" title="<b>'.$user.'</b>" data-content="'.$this->getContribPopover($user,$avatar,$fullname,$email).'" class="rounded-circle contrib-overlap-avatar" >';
+            echo '<a tabindex="0" role="button" data-toggle="popover" data-trigger="focus" data-placement="top" title="<b>'.$user.'</b>" data-content="'.$this->getContribPopover($user,$popover_avatar,$fullname,$email).'" class="rounded-circle contrib-overlap-avatar" >';
             // echo 'style="background: url('.$avatar.') 0 0 no-repeat;background-size: cover;">';
             echo '<img alt="'.$user.'" src="'.$avatar.'" class="m-0 w-100 h-100 img-circle"></a>'; 
             $idx++;   
@@ -761,7 +763,7 @@ class Template
             echo '<ul class="list-group">';
             foreach ($authors as $user => $fullname) {
                 $email = $author_emails[$user];
-                $avatar = $this->getAvatar($user, $email);
+                $avatar = $this->getAvatar($user, $email, 140);
                 echo '<li class="list-group-item">';
                 $this->getContribModalItem($user, $avatar, $fullname, $email);
                 echo '</li>';
