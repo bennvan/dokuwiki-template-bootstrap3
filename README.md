@@ -26,11 +26,12 @@ The bundled **Vanilla Pro** theme is selected by default. Choose it under
 
 The profile page includes an avatar upload form for members of `user` or `admin`
 with media upload/overwrite permission in their own public namespace. JPEG, PNG
-and WebP photos are auto-rotated, centre-cropped and resized to 400×400, then saved
+and WebP photos are auto-rotated and centre-cropped to a square of up to 400×400,
+without enlarging smaller images, then saved
 as `user:<username>:public:avatar.png`. The local-initials avatar provider uses
 this file, requesting cached DokuWiki thumbnails for small avatars and larger
-images for contributor popovers. Existing smaller uploads need to be uploaded
-again to gain detail. Uploads use DokuWiki's normal media permissions, revisions and logging;
+images for contributor popovers. To improve an existing small avatar, upload a
+higher-resolution original. Uploads use DokuWiki's normal media permissions, revisions and logging;
 PHP's upload limit still applies. **Reset photo** removes the local PNG and any
 older avatar JPEG through DokuWiki's media deletion handler, restoring the
 generated initials avatar on reload. Reset requires media deletion permission.

@@ -81,14 +81,17 @@ class AvatarUpload
             || ($memory > 0 && $pixels * 16 + 16777216 > $memory - memory_get_usage(true))) {
             throw new \RuntimeException(tpl_getLang('avatar_too_large'));
         }
+        // Keep the square crop within the source's native resolution.
+        // Autorotation may swap width and height, but their minimum is unchanged.
+        $edge = min(400, $size[0], $size[1]);
         try {
             @Slika::run($source, ['imconvert' => $conf['im_convert']])
-                ->autorotate()->crop(400, 400)->save($target, 'png');
+                ->autorotate()->crop($edge, $edge)->save($target, 'png');
         } catch (\Exception $e) {
             throw new \RuntimeException(tpl_getLang('avatar_invalid'));
         }
         $result = @getimagesize($target);
-        if (!$result || $result[0] !== 400 || $result[1] !== 400 || $result[2] !== IMAGETYPE_PNG) {
+        if (!$result || $result[0] !== $edge || $result[1] !== $edge || $result[2] !== IMAGETYPE_PNG) {
             throw new \RuntimeException(tpl_getLang('avatar_failed'));
         }
     }
