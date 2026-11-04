@@ -105,6 +105,11 @@ will not work!
 
 Ensure that the following PHP modules are installed: `php-xml`.
 
+The bundled Font Awesome fallback uses Font Awesome Free 7.3.1, matching the
+Icons plugin collection. Use current icon names (for example `fa:house` and
+`fa:circle-question`). Icons are licensed under CC BY 4.0 by Fonticons, Inc.;
+see [the bundled license](assets/iconify/fontawesome-LICENSE.txt).
+
 Please refer to https://www.dokuwiki.org/template for additional info
 on how to install templates in DokuWiki.
 
