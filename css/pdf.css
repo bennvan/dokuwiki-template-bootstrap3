@@ -1,0 +1,17 @@
+/* Shared document styling. Fonts and page furniture belong to the PDF template. */
+.dokuwiki h1, .dokuwiki h2, .dokuwiki h3,
+.dokuwiki h4, .dokuwiki h5 { page-break-after: avoid; }
+.dokuwiki p { line-height: 1.4; }
+.dokuwiki img { max-width: 100%; }
+/* mPDF can lose the outer .dokuwiki context while rendering headers/footers.
+   Match wiki tables directly and use Bootstrap's standard cell padding. */
+table.inline { width: 100%; border-collapse: collapse; }
+table.inline th, table.inline td {
+    padding: 8px;
+    vertical-align: top;
+}
+table.inline th { background-color: #eef2f5; font-weight: bold; }
+.dokuwiki pre { font-size: 100%; white-space: pre-wrap; }
+.dokuwiki code { font-size: 90%; }
+.dokuwiki pre code { font-size: 100%; }
+
