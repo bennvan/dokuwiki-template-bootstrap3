@@ -643,7 +643,8 @@ class Template
      * @return  true
      */
     public function getContribModalItem($username, $avatar, $name, $email) {
-        global $ID;
+        global $ID, $conf;
+        $subject = rawurlencode($conf['title'] . ' page ' . $ID);
 
         echo "<div class='d-flex flex-row align-items-center justify-content-center'>";
         echo    "<span>";
@@ -653,7 +654,7 @@ class Template
         echo        "<div class='my-1'><em>$username</em></div>";
         echo        "<div class='my-1'><strong>$name</strong></div>";
         echo        "<div class='small'>";
-        echo            "<a href='mailto:$email?subject=AMME Labs Wiki page $ID'><i class='fa fa-envelope'></i>&nbsp;$email</a>";
+        echo            "<a href='mailto:$email?subject=$subject'><i class='fa fa-envelope'></i>&nbsp;$email</a>";
         echo        "</div>";
         echo    "</span>";
         echo "</div>";
@@ -670,7 +671,8 @@ class Template
      * @return  html string
      */
     public function getContribPopover($username, $avatar, $name, $email) {
-        global $ID;
+        global $ID, $conf;
+        $subject = rawurlencode($conf['title'] . ' page ' . $ID);
 
         $out = "<div class='container-fluid'>";
         $out .=    "<p class='text-center'>";
@@ -681,7 +683,7 @@ class Template
         $out .=            "<strong>$name</strong>";
         $out .=        "</div>";
         $out .=        "<div class='small'>";
-        $out .=            "<a href='mailto:$email?subject=AMME Labs Wiki page $ID'><i class='fa fa-envelope'></i>&nbsp;$email</a>";
+        $out .=            "<a href='mailto:$email?subject=$subject'><i class='fa fa-envelope'></i>&nbsp;$email</a>";
         $out .=        "</div>";
         $out .=    "</div>";
         $out .= "</div>";
